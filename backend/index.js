@@ -1,16 +1,42 @@
-const express = require('express');
-const session = require('express-session');
-const {URL} = require('url');
-const cors = require('cors')
 const WebSocket = require("ws")
-const {WebSocketServer} = require('ws');
-const mongoose = require('mongoose');
-const bodyParser = require("body-parser")
-const app = express();
 const { parse } = require('url');
-const uuid = require("uuid")
+const {Game} = require('./models')
 
+const lobbyServer = require('./sockets/lobbyServer');
+const gameServer = require('./sockets/gameServer')
 
+require("./utils/db")
+
+Game.watch()
+.on('change', data => {
+    console.log("Operation Type: " + data.operationType)
+    console.log(data)
+    switch (data.operationType) {
+        case "update":
+            gameServer.clients.forEach(client => {
+                // comment this back in when i get ip working
+                // if (client.readyState === WebSocket.OPEN && (client.ip === data.playerOneIP || client.ip === data.playerTwoIp)) {
+                    client.send(JSON.stringify({type: "initData", value: {playerTwo: data.updateDescription.updatedFields.playerTwo}}))
+                // }
+            })
+            break;
+        case "insert":
+            lobbyServer.clients.forEach(function each(client) {
+                if (client.readyState === WebSocket.OPEN && client.ip != data.playerOne ) {
+                    client.send("new game started");
+                }
+            });
+            break
+        default:
+            break;
+    }
+})
+
+// const ws = map.get(request.session.userId);
+// map.set(userId, ws);
+// map.delete(userId);
+const session = require('express-session');
+const app = require("./server")
 const sessionParser = session({
     saveUninitialized: false,
     secret: 'secret',
@@ -18,102 +44,30 @@ const sessionParser = session({
   });
 
 app.use(sessionParser);
-app.use(cors())
+app.use("/games", require("./routes/game"))
+app.use("/lobbies", require("./routes/lobby"))
 
-async function connectToDb() {
-    await mongoose.connect('mongodb+srv://admin:qihQVpoE2GzzIThQ@cluster0.e43sxtl.mongodb.net/?retryWrites=true&w=majority');
-  }
-
-connectToDb().then(() => {
-    console.log("connected to db")
-    Lobby.deleteMany({}, (e,d) => {console.log(d)})
-}).catch(err => console.log(err));
-
-const User = mongoose.model('User', new mongoose.Schema({
-    username: String
-}))
-
-const Lobby = mongoose.model('Lobby', new mongoose.Schema({
-    name: String,
-    playerOne: String,
-    playerTwo: String
-}));
-
-
-
-
-
-
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-const wsServer = new WebSocketServer({ noServer: true });
-
-wsServer.on('connection', (socket, request) => {
-    socket.on('message', message => {
-        console.log('received: %s', message)
-        socket.send("pong")
-    })
-});
-
-Lobby.watch()
-.on('change', data => {
-    wsServer.clients.forEach(function each(client) {
-        if (client.readyState === WebSocket.OPEN ) {
-            client.send("new lobby");
-        }
-    });
+app.get("/game", async (req, res) => {
+    // const game = await Game.find({ _id: req.body._id })
+    res.sendStatus(200)
 })
 
-// map = new Map()
-// const ws = map.get(request.session.userId);
-// map.set(userId, ws);
-// map.delete(userId);
-
-app.get("/lobbies", async (req, res) => {
-    const lobbies = await Lobby.find()
-    res.send(lobbies)
-})
-
-app.post("/lobbies", async (req, res) => {
-    Lobby.create({name: req.body.name}, (err, doc) => {
-        if (err) {
-            res.send(400)
-            return    
-        }
-        res.send(200)
-    })
-})
-
-const server = app.listen(8080, () => console.log('listening'));
-
+const server = app.listen(8080, () => console.log("server listening"))
 
 server.on('upgrade', (request, socket, head) => {
-    // find lobby in database
-    // if no lobby
-    // create one
-    // save lobby id as session.id
-    
-    
-    
-    
-    // sessionParser(request, {}, () => {
-    //     const { pathname, query } = parse(request.url);
-    //     console.log(pathname)
-    //     console.log(request.session)
-    //     if (!request.session.username) {
-    //         console.log("no username")
-    //         socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-    //         socket.destroy();
-    //         return;
-    //     }
-    // })
-    // console.log("foo")
-
-
-    wsServer.handleUpgrade(request, socket, head, socket => {
-        wsServer.emit('connection', socket, request);
-    });
+    sessionParser(request, {}, () => {
+        const { pathname, query } = parse(request.url);
+        if (pathname == "/lobby"){
+            lobbyServer.handleUpgrade(request, socket, head, socket => {
+                lobbyServer.emit('connection', socket, request);
+            });
+        } else if (pathname === "/game") {
+            const id = query.split("=")[1]
+            request.session.gameId = id
+            gameServer.handleUpgrade(request, socket, head, socket => {
+                gameServer.emit('connection', socket, request);
+            });
+        }
+    })
 });
 
