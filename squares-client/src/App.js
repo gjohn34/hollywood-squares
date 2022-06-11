@@ -12,12 +12,15 @@ import LobbyIndex from "./pages/LobbyIndex.js"
 function App() {
 	const [state, dispatch] = useReducer(reducer, initialData);
 
+	const [username, setUsername] = useState("")
+	const [gameName, setGameName] = useState("")
+
   return (
     <Context.Provider value={{state, dispatch}}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LobbyIndex />} />
-          <Route path="/game" element={<Game />} /> 
+          <Route path="/" element={<LobbyIndex {...{username, setUsername, gameName, setGameName}}/>} />
+          <Route path="/game" element={<Game {...{username}}/>} /> 
         </Routes>
       </BrowserRouter>
     </Context.Provider>

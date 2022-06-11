@@ -11,7 +11,8 @@ router.post("/", async (req, res) => {
     Game.create({
         name: req.body.name, 
         playerOne: req.body.playerOne, 
-        playerOneIP: req.socket.remoteAddress
+        playerOneIP: req.socket.remoteAddress,
+        turn: 0,
     }, (err, doc) => {
         if (err) {
             res.send(400)

@@ -2,11 +2,9 @@ import { useState, useEffect, useContext } from 'react'
 import { useNavigate } from "react-router-dom";
 import Context from '../context'
 
-export default function LobbyIndex() {
+export default function LobbyIndex({gameName, setGameName, username, setUsername}) {
 	const {state, dispatch} = useContext(Context)
 	const {client} = state
-	const [username, setUsername] = useState("")
-	const [gameName, setGameName] = useState("")
 	const [games, setGames] = useState([])
 	let navigate = useNavigate();
 

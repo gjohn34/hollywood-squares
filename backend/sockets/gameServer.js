@@ -27,6 +27,7 @@ gameServer.on('connection', async (socket, request) => {
         return;    
     }
     let pair;
+    console.log(map.has(game.id))
     if (!map.has(game.id)) {
         pair = new Pair(socket, null)
     } else {

@@ -6,6 +6,7 @@ const User = mongoose.model('User', new mongoose.Schema({
 
 const Game = mongoose.model('Game', new mongoose.Schema({
     name: String,
+    turn: Number,
     playerOne: String,
     playerOneIP: String,
     playerTwo: String,
