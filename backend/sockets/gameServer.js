@@ -1,5 +1,5 @@
-const {WebSocketServer} = require("ws") 
-const {Game} = require('../models')
+const { WebSocketServer } = require("ws")
+const { Game } = require('../models')
 
 const map = new Map()
 const gameServer = new WebSocketServer({ noServer: true });
@@ -20,29 +20,30 @@ class Pair {
     // }
 }
 gameServer.on('connection', async (socket, request) => {
-    const game = await Game.findById(request.session.gameId)
+    console.log("Game connection")
+    console.log("game id: " + request.session.gid)
+    const game = await Game.findById(request.session.gid)
     if (!game) {
         socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
         socket.destroy();
-        return;    
+        return;
     }
     let pair;
-    console.log(map.has(game.id))
     if (!map.has(game.id)) {
         pair = new Pair(socket, null)
     } else {
         pair = map.get(game.id);
-        pair.playerTwo = socket
-        pair.playerOne.emit("message", game.playerTwo)
+        if (!pair.playerOne.uid == socket.uid) {
+            pair.playerTwo = socket
+            pair.playerOne.emit("message", game.playerTwo)
+        }
     }
     map.set(game.id, pair)
-
-    
 
     socket.on('message', message => {
         // if (message === "")
         console.log('game update: %s', message)
-        pair.sendToPair({type: "playerTwoName", value: {playerTwo: message}})
+        pair.sendToPair({ type: "playerTwoName", value: { playerTwo: message } })
     })
     socket.on("close", () => {
     })

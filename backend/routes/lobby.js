@@ -1,4 +1,4 @@
-const {Game} = require('../models')
+const { Game } = require('../models')
 
 const router = require("express").Router();
 
@@ -9,17 +9,16 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
     Game.create({
-        name: req.body.name, 
-        playerOne: req.body.playerOne, 
-        playerOneIP: req.socket.remoteAddress,
+        name: req.body.name,
+        playerOne: req.body.playerOne,
         turn: 0,
     }, (err, doc) => {
         if (err) {
             res.send(400)
-            return    
+            return
         }
-        req.session.gameId = doc.id
-        res.send({result: "Ok", id: doc.id})
+        req.session.gid = doc.id
+        res.send({ result: "Ok", _id: doc.id })
     })
 })
 

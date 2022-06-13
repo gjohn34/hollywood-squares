@@ -1,4 +1,4 @@
-const {Game} = require('../models')
+const { Game } = require('../models')
 
 const router = require("express").Router();
 
@@ -9,9 +9,9 @@ router.get("/:id", async (req, res) => {
 
 router.patch("/:id", async (req, res) => {
     const game = await Game.findByIdAndUpdate(req.params.id, {
-        playerTwo: req.body.playerTwo, 
-        playerTwoIP: req.socket.remoteAddress
-    }, {returnDocument: 'after'})
+        playerTwo: req.body.playerTwo,
+    }, { returnDocument: 'after' })
+    req.session.gid = game.id
     res.send(game)
 })
 
