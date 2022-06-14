@@ -8,21 +8,32 @@ const User = mongoose.model('User', new mongoose.Schema({
     password: String,
 }))
 
-const Game = mongoose.model('Game', new mongoose.Schema({
+
+const gameSchema = new mongoose.Schema({
     name: String,
     turn: Number,
     playerOne: String,
     playerOneIP: String,
     playerTwo: String,
-    playerTwoIP: String
-}));
+    playerTwoIP: String,
+    question: String,
+    board: {
+        type: [[Number]],
+        default: [
+            [null, null, null], [null, null, null], [null, null, null]
+        ]
+    }
+});
+
+const Game = mongoose.model('Game', gameSchema)
 
 
 const questionSchema = new mongoose.Schema({
     text: String,
     answer: String,
     correct: Boolean
-})
+});
+
 questionSchema.statics.random = async function (cb) {
     let count = await mongoose.model("Question").countDocuments()
     let random = Math.floor(Math.random() * count)

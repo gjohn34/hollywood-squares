@@ -5,7 +5,7 @@ async function connectToDb() {
   await mongoose.connect('mongodb+srv://admin:qihQVpoE2GzzIThQ@cluster0.e43sxtl.mongodb.net/?retryWrites=true&w=majority');
 }
 
-connectToDb().then(() => {
+connectToDb().then(async () => {
   console.log("connected to db")
   Game.deleteMany({}, (e, d) => { console.log(d) })
   User.deleteMany({}, (e, d) => { console.log(d) })
@@ -16,6 +16,7 @@ connectToDb().then(() => {
       { text: "fire hot", answer: "no", correct: false },
     ])
   }
+
 }).catch(err => console.log(err));
 
 

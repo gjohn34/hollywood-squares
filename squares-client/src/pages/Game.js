@@ -1,16 +1,10 @@
 import { useContext, useEffect, useState } from "react"
 import "./game.css"
 import Context from '../context'
+import GameBoard from "../components/GameBoard"
+import GameLabel from "../components/GameLabel"
 
-class SocketResponse {
-    constructor(type, value) {
-        if (!type || !value) throw Error
-        this.type = type
-        this.value = value
-    }
-}
-
-export default function Game({ username }) {
+export default function Game() {
     // Lazy enum
     const GameState = {
         Waiting: "Waiting",
@@ -23,14 +17,14 @@ export default function Game({ username }) {
     }
 
     const { state, dispatch } = useContext(Context)
-    const { client, gameId, user } = state
+    const { gameId, user } = state
     const [game, setGame] = useState(null)
     const [gameState, setGameState] = useState(GameState.Waiting)
-    const [prompt, setPrompt] = useState("")
+    // const [prompt, setPrompt] = useState("")
     const [playingAs, setPlayingAs] = useState(null)
     const [turn, setTurn] = useState(Player.PlayerOne)
     const [question, setQuestion] = useState(null)
-    // const [answer, setAnswer] = useState(null)
+    const [boardArray, setBoardArray] = useState([[null, null, null], [null, null, null], [null, null, null]])
 
     useEffect(() => {
         if (!user) return
@@ -44,7 +38,7 @@ export default function Game({ username }) {
                 credentials: 'include'
             })
                 .then(response => {
-                    if (response.status == 200) {
+                    if (response.status === 200) {
                         return response.json()
                     } else {
                         window.sessionStorage.removeItem("gid")
@@ -53,7 +47,9 @@ export default function Game({ username }) {
                 })
                 .then(data => {
                     if (data) {
-                        setPlayingAs(data.playerOne == user.username ? Player.PlayerOne : Player.PlayerTwo)
+                        setPlayingAs(data.playerOne === user.username ? Player.PlayerOne : Player.PlayerTwo)
+                        console.log("data")
+                        console.log(data)
                         setGame(data)
                         gameSocket(data)
                         window.sessionStorage.setItem("gameId", data._id)
@@ -63,8 +59,8 @@ export default function Game({ username }) {
     }, [user])
 
     useEffect(() => {
-        if (gameState == GameState.Start) {
-            setPrompt(`${game.turn % 2 == 0 ? game.playerOne : game.playerTwo}, select a square`)
+        if (gameState === GameState.Start) {
+            // setPrompt(`${game.turn % 2 == 0 ? game.playerOne : game.playerTwo}, select a square`)
             setTurn(Player.PlayerOne)
         }
     }, [gameState])
@@ -73,7 +69,7 @@ export default function Game({ username }) {
         let gameid = window.sessionStorage.getItem("gid")
         let uid = window.sessionStorage.getItem("uid")
         const ws = new WebSocket(`ws://localhost:8080/game?id=${gameid}&uid=${uid}`);
-        ws.onopen = (x) => {
+        ws.onopen = () => {
             console.log("Making game connection")
             dispatch({ type: "setClient", value: ws })
         }
@@ -82,9 +78,11 @@ export default function Game({ username }) {
             let json = JSON.parse(data)
             console.log(json)
             switch (json.type) {
-                case "initData":
-                    setGame({ ...initGame, playerTwo: json.value.playerTwo })
-                    break;
+                // case "initData":
+                //     if (!game) {
+                //         setGame({ ...initGame, playerTwo: json.value.playerTwo })
+                //     }
+                // break;
                 case "playerTwoName":
                     if (json.value.playerTwo) {
                         setGame({ ...initGame, playerTwo: json.value.playerTwo })
@@ -95,66 +93,24 @@ export default function Game({ username }) {
                     setQuestion(json.value)
                     break
                 case "getAnswer":
-                    console.log(json.value)
+                    let copy = [...boardArray]
+                    const { row, column, value } = json.value
+                    copy[row][column] = value
+                    setBoardArray(copy)
+                    break;
                 default:
                     break;
             }
         }
-        ws.onclose = (x) => {
+        ws.onclose = () => {
             console.log("closing");
         }
     }
 
-    const squareClick = (e) => {
-        if (playingAs !== turn) return;
-
-        client.send(JSON.stringify({ type: "getQuestion" }))
-    }
-
-    const answer = bool => {
-        client.send(JSON.stringify({ type: "answerQuestion", value: bool }))
-    }
-
     return (
         <div>
-            {game && (
-                <>
-                    <p>Player One: {game.playerOne}</p>
-                    <p>Player Two: {game.playerTwo || "waiting for player two..."}</p>
-                    <p>Current Turn: {turn}</p>
-                    {turn == playingAs ? (
-                        <>
-                            {question && (
-                                <>
-                                    <p>{question.text}</p>
-                                    <p>Square says: {question.answer}</p>
-                                    <p>True or false?</p>
-                                    <button onClick={() => answer(true)}>True</button>
-                                    <button onClick={() => answer(false)}>False</button>
-                                </>
-                            )}
-                        </>
-                    ) : <p>waiting on other player</p>}
-                    <div id="container">
-                        <div className="row">
-                            <div className="square" onClick={squareClick}></div>
-                            <div className="square"></div>
-                            <div className="square"></div>
-                        </div>
-                        <div className="row">
-                            <div className="square"></div>
-                            <div className="square"></div>
-                            <div className="square"></div>
-                        </div>
-                        <div className="row">
-                            <div className="square"></div>
-                            <div className="square"></div>
-                            <div className="square"></div>
-                        </div>
-                    </div>
-                </>
-            )
-            }
+            <GameLabel {...{ turn, game }} />
+            <GameBoard {...{ turn, question, playingAs, boardArray }} />
         </div >
     )
 }

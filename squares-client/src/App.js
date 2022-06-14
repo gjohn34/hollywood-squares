@@ -12,7 +12,6 @@ import Auth from './components/auth'
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialData);
-  const { user } = state;
 
   const [gameName, setGameName] = useState("")
 
@@ -26,7 +25,7 @@ function App() {
       })
         .then(response => {
           console.log(response.status)
-          if (response.status == 200) {
+          if (response.status === 200) {
             return response.json()
           } else {
             window.sessionStorage.removeItem("uid")

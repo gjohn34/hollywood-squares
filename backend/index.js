@@ -10,12 +10,11 @@ require("./utils/db")
 Game.watch()
     .on('change', data => {
         console.log("Operation Type: " + data.operationType)
+        console.log("data: ")
+        console.log(data)
         switch (data.operationType) {
             case "update":
                 gameServer.clients.forEach(client => {
-                    console.log("--------------------------")
-                    console.log(client)
-                    console.log("--------------------------")
                     // comment this back in when i get ip working
                     // if (client.readyState === WebSocket.OPEN && (client.ip === data.playerOneIP || client.ip === data.playerTwoIp)) {
                     client.send(JSON.stringify({ type: "initData", value: { playerTwo: data.updateDescription.updatedFields.playerTwo } }))
