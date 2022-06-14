@@ -1,14 +1,24 @@
 const { WebSocketServer } = require("ws")
-const { Game } = require('../models')
+const { Game, Question } = require('../models')
 
 const map = new Map()
 const gameServer = new WebSocketServer({ noServer: true });
 
-class Pair {
-    constructor(playerOne, playerTwo) {
-        this.playerOne = playerOne
-        this.playerTwo = playerTwo
+class SocketResponse {
+    constructor(type, value) {
+        if (!type || !value) throw Error
+        this.type = type
+        this.value = value
     }
+}
+
+class Pair {
+    constructor(playerOne, playerOneUid) {
+        this.playerOne = playerOne
+        this.playerOneUid = playerOneUid
+        this.playerTwoUid = null
+    }
+
 
     sendToPair = (message) => {
         let data = JSON.stringify(message)
@@ -30,20 +40,59 @@ gameServer.on('connection', async (socket, request) => {
     }
     let pair;
     if (!map.has(game.id)) {
-        pair = new Pair(socket, null)
+        pair = new Pair(socket, request.session.uid)
     } else {
         pair = map.get(game.id);
-        if (!pair.playerOne.uid == socket.uid) {
-            pair.playerTwo = socket
-            pair.playerOne.emit("message", game.playerTwo)
+        switch (request.session.uid) {
+            case pair.playerOneUid:
+                pair.playerOne = socket;
+                break;
+            case pair.playerTwoUid:
+                pair.playerTwo = socket
+                break
+            default:
+                pair.playerTwo = socket
+                pair.playerTwoUid = request.session.uid
+                pair.playerOne.emit("message", JSON.stringify(new SocketResponse("playerTwoName", game.playerTwo)))
+                break;
         }
     }
     map.set(game.id, pair)
 
     socket.on('message', message => {
-        // if (message === "")
-        console.log('game update: %s', message)
-        pair.sendToPair({ type: "playerTwoName", value: { playerTwo: message } })
+        data = JSON.parse(message)
+        console.log('game update: %s', data)
+        pair = map.get(game.id);
+
+        switch (data.type) {
+            case "getQuestion":
+                console.log('hit question')
+                Question.findOne({}, (e, doc) => pair.sendToPair(new SocketResponse("getQuestion", doc.toObject())))
+                // Question.random((e, doc) => pair.sendToPair(new SocketResponse("getQuestion", doc.toObject())))
+                // pair.sendToPair(new SocketResponse("getQuestion", { question: "1 + 1", answer: "3", correct: false }))
+                break;
+            case "answerQuestion":
+                console.log("hit answer");
+                Question.findOne({}, (e, doc) => {
+                    if (doc.correct == data.value) {
+                        console.log("you are correct")
+                        pair.sendToPair(new SocketResponse("getAnswer", { value: true }))
+                    } else {
+                        console.log("you are incorrect")
+                        pair.sendToPair(new SocketResponse("getAnswer", { value: false }))
+                    }
+                    // pair.sendToPair(new SocketResponse("getQuestion", doc.toObject()))
+                })
+                break;
+            // let messageTo = game.turn % 2 == 0 ? pair.playerOne : pair.playerTwo;
+            // pair.sendToPair(new SocketResponse("getQuestion", { question: "1 + 1", answer: 3, correct: false }))
+
+            case "playerTwoName":
+                pair.sendToPair(new SocketResponse("playerTwoName", data.value))
+                break;
+            default:
+                break;
+        }
     })
     socket.on("close", () => {
     })
