@@ -41,7 +41,7 @@ export default function Game() {
 
     useEffect(() => {
         if (!user) return
-        let gameid = window.sessionStorage.getItem("gid")
+        let gameid = localStorage.getItem("gid")
         if (!gameId && gameid) {
             dispatch({ type: "setGameId", value: gameid })
         }
@@ -54,7 +54,7 @@ export default function Game() {
                     if (response.status === 200) {
                         return response.json()
                     } else {
-                        window.sessionStorage.removeItem("gid")
+                        localStorage.removeItem("gid")
                         return
                     }
                 })
@@ -63,7 +63,7 @@ export default function Game() {
                         setGame(data)
                         setPlayingAs(data.playerOne.id === user.id ? Player.PlayerOne : Player.PlayerTwo)
                         gameSocket(data)
-                        window.sessionStorage.setItem("gameId", data._id)
+                        localStorage.setItem("gameId", data._id)
                     }
                 })
         }
@@ -78,8 +78,8 @@ export default function Game() {
 
     const gameSocket = (initGame) => {
 
-        let gameid = window.sessionStorage.getItem("gid")
-        let uid = window.sessionStorage.getItem("uid")
+        let gameid = localStorage.getItem("gid")
+        let uid = localStorage.getItem("uid")
         const ws = new WebSocket(`ws://localhost:8080/game?id=${gameid}&uid=${uid}`);
         ws.onopen = () => {
             console.log("Making game connection")

@@ -27,7 +27,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 			.then(data => {
 				if (client) client.close()
 				dispatch({ type: "setGameId", value: data._id })
-				window.sessionStorage.setItem("gid", data._id)
+				localStorage.setItem("gid", data._id)
 				navigate('/game')
 			})
 	}
@@ -42,7 +42,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 			.then(data => {
 				if (client) client.close()
 				dispatch({ type: "setGameId", value: data._id })
-				window.sessionStorage.setItem("gid", data._id)
+				localStorage.setItem("gid", data._id)
 				navigate('/game')
 
 			})

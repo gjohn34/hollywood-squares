@@ -17,7 +17,7 @@ function App() {
 
   // auth user
   useEffect(() => {
-    let uid = window.sessionStorage.getItem("uid")
+    let uid = localStorage.getItem("uid")
     if (uid) {
       fetch("http://localhost:8080/auth/me", {
         method: "GET",
@@ -27,7 +27,7 @@ function App() {
           if (response.status === 200) {
             return response.json()
           } else {
-            window.sessionStorage.removeItem("uid")
+            localStorage.removeItem("uid")
             return
           }
         })
@@ -40,7 +40,7 @@ function App() {
 
   // setup game on page refresh
   useEffect(() => {
-    // let gid = window.sessionStorage.getItem("uid")
+    // let gid = localStorage.getItem("uid")
     // if (gid) {
     //   fetch("http://localhost:8080/game", {
     //     method: "GET",
@@ -50,7 +50,7 @@ function App() {
     //       if (response.status == 200) {
     //         return response.json()
     //       } else {
-    //         window.sessionStorage.removeItem("gid")
+    //         localStorage.removeItem("gid")
     //         return
     //       }
     //     })

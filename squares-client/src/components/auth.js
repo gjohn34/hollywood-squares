@@ -25,7 +25,7 @@ function Auth() {
             })
             .then(json => {
                 if (!json) return
-                window.sessionStorage.setItem("uid", json._id)
+                localStorage.setItem("uid", json._id)
                 dispatch({ type: "setUser", value: json })
 
             })
@@ -51,7 +51,7 @@ function Auth() {
             .then(json => {
                 if (!json) return
 
-                window.sessionStorage.setItem("uid", json._id)
+                localStorage.setItem("uid", json._id)
                 dispatch({ type: "setUser", value: json })
             })
     }
