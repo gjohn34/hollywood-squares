@@ -9,7 +9,7 @@ router.get("/:id", async (req, res) => {
 
 router.patch("/:id", async (req, res) => {
     const game = await Game.findByIdAndUpdate(req.params.id, {
-        playerTwo: req.body.playerTwo,
+        playerTwo: req.session.uid,
     }, { returnDocument: 'after' })
     req.session.gid = game.id
     res.send(game)

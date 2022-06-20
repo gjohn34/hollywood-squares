@@ -29,9 +29,9 @@ function GameBoard({ turn, question, playingAs, boardArray }) {
             ) : <p>waiting on other player</p>}
             <div id="container">
                 {boardArray.map((subArray, row) => (
-                    <div className="row">
+                    <div key={`${row}`} className="row">
                         {subArray.map((display, column) => (
-                            <BoardSquare {...{ playingAs, turn, display, row, column }} />
+                            <BoardSquare key={`${row}${column}`} {...{ playingAs, turn, display, row, column }} />
                         ))}
                     </div>
                 ))}

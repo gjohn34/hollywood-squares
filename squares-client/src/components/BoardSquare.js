@@ -11,10 +11,10 @@ function BoardSquare({ playingAs, turn, display, row, column }) {
             case null:
                 divEl.current.style.backgroundColor = "grey"
                 break;
-            case false:
+            case 0:
                 divEl.current.style.backgroundColor = "red"
                 break;
-            case true:
+            case 1:
                 divEl.current.style.backgroundColor = "green"
                 break;
             default:

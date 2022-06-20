@@ -5,8 +5,9 @@ function GameLabel({ game, turn }) {
         <>
             {game && (
                 <>
-                    <p>Player One: {game.playerOne}</p>
-                    <p>Player Two: {game.playerTwo || "waiting for player two..."}</p>
+                    {console.log(game)}
+                    <p>Player One: {game.playerOne?.username}</p>
+                    <p>Player Two: {game.playerTwo?.username || "waiting for player two..."}</p>
                     <p>Current Turn: {turn}</p>
 
                 </>

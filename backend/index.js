@@ -1,25 +1,33 @@
 const WebSocket = require("ws")
 const { parse } = require('url');
-const { Game } = require('./models')
+const { Game, User } = require('./models')
 
 const lobbyServer = require('./sockets/lobbyServer');
-const gameServer = require('./sockets/gameServer')
+const { gameServer, Pair } = require('./sockets/gameServer')
 
 require("./utils/db")
 
 Game.watch()
     .on('change', data => {
-        console.log("Operation Type: " + data.operationType)
-        console.log("data: ")
-        console.log(data)
         switch (data.operationType) {
             case "update":
-                gameServer.clients.forEach(client => {
-                    // comment this back in when i get ip working
-                    // if (client.readyState === WebSocket.OPEN && (client.ip === data.playerOneIP || client.ip === data.playerTwoIp)) {
-                    client.send(JSON.stringify({ type: "initData", value: { playerTwo: data.updateDescription.updatedFields.playerTwo } }))
-                    // }
+                console.log(data.operationType)
+                Game.findById(data.documentKey._id, (e, doc) => {
+                    if (e) return
+                    let pair = Pair.findPairByGame(doc)
+                    // User.findById(data.updateDescription.updatedFields.playerTwo)
+                    //     .then(u =>
+                    //         pair.playerOne.send(JSON.stringify({ type: "playerTwoName", value: { playerTwo: data.updateDescription.updatedFields.playerTwo } }))
+                    //     )
                 })
+                // if (data.updateDescription.updatedFields.hasOwnProperty('playerTwo')) {
+                //     Game.findById(data.documentKey.id, (e, doc) => {
+                //         if (e) throw e
+                //         console.log("--------------------------");
+                //         console.log(e)
+                //         console.log("--------------------------");
+                //     })
+                // }
                 break;
             case "insert":
                 lobbyServer.clients.forEach(function each(client) {
@@ -34,7 +42,8 @@ Game.watch()
     })
 
 const session = require('express-session');
-const app = require("./server")
+const app = require("./server");
+const { log } = require("console");
 const sessionParser = session({
     saveUninitialized: false,
     secret: 'secret',
@@ -55,14 +64,13 @@ app.use(session({
 app.use("/games", require("./routes/game"))
 app.use("/lobbies", require("./routes/lobby"))
 
-app.get("/game", (req, res) => {
-    Game.findById(req.session.gid, (e, doc) => {
-        if (e || !doc) {
-            res.send(404)
-        } else {
-            res.status(200).send(doc)
-        }
-    })
+app.get("/game", async (req, res) => {
+    const doc = await Game.findById(req.session.gid).populate(["playerOne", "playerTwo", "question"])
+    if (!doc) {
+        res.send(404)
+    } else {
+        res.status(200).send(doc)
+    }
 })
 
 app.use("/auth", require("./routes/auth"))
@@ -82,7 +90,6 @@ server.on('upgrade', (request, socket, head) => {
             request.session.gid = params[0].split("=")[1]
             request.session.uid = params[1].split('=')[1]
             socket.uid = request.session.uid
-            console.log("socket uid: " + socket.uid)
             gameServer.handleUpgrade(request, socket, head, socket => {
                 gameServer.emit('connection', socket, request);
             });

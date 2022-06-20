@@ -13,26 +13,33 @@ class SocketResponse {
 }
 
 class Pair {
+    static pairs = []
     constructor(playerOne, playerOneUid) {
         this.playerOne = playerOne
+        this.playerTwo = null
         this.playerOneUid = playerOneUid
         this.playerTwoUid = null
+        Pair.Push(this)
     }
 
+    static findPairByGame = (game) => {
+        const pOneUid = game.playerOne._id.toString()
+        const pTwoUid = game.playerTwo?._id.toString() || null
+        return this.pairs.find(pair => pOneUid == pair.playerOneUid || pTwoUid == pair.playerTwoUid)
+    }
+
+    static Push(pair) {
+        this.pairs.push(pair)
+    }
 
     sendToPair = (message) => {
         let data = JSON.stringify(message)
         this.playerOne.send(data)
         this.playerTwo.send(data)
     }
-
-    // function getOther(socket) {
-    // }
 }
 gameServer.on('connection', async (socket, request) => {
-    console.log("Game connection")
-    console.log("game id: " + request.session.gid)
-    let game = await Game.findById(request.session.gid)
+    let game = await Game.findById(request.session.gid).populate(['playerOne', 'playerTwo', "question"])
     if (!game) {
         socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
         socket.destroy();
@@ -61,13 +68,11 @@ gameServer.on('connection', async (socket, request) => {
 
     socket.on('message', async message => {
         data = JSON.parse(message)
-        console.log('game update: %s', data)
         pair = map.get(game.id);
         game = await Game.findById(request.session.gid)
 
         switch (data.type) {
             case "getQuestion":
-                console.log('hit question')
                 Question.random(async (e, doc) => {
                     // game.question = doc.id
                     // console.log(doc.id)
@@ -83,30 +88,22 @@ gameServer.on('connection', async (socket, request) => {
                 // pair.sendToPair(new SocketResponse("getQuestion", { question: "1 + 1", answer: "3", correct: false }))
                 break;
             case "answerQuestion":
-                console.log("hit answer");
+                console.log("ans")
                 Question.findById((game.question), (e, doc) => {
                     if (doc.correct == data.value) {
-                        console.log("you are correct")
 
                         let board = [...game.board]
                         const { row, column } = request.session
-                        console.log(request.session)
-                        board[row][column] = 1
+                        board[row][column] = request.session.uid == game.playerOne.uid
 
                         Game.findOneAndUpdate(game.id, { board }, { returnDocument: true }, (e, doc) => {
                             pair.sendToPair(new SocketResponse("getAnswer", { value: true, row: request.session.row, column: request.session.column }))
                         })
                     } else {
-                        console.log("you are incorrect")
-                        console.log(request.session)
                         pair.sendToPair(new SocketResponse("getAnswer", { value: false, row: request.session.row, column: request.session.column }))
                     }
-                    // pair.sendToPair(new SocketResponse("getQuestion", doc.toObject()))
                 })
                 break;
-            // let messageTo = game.turn % 2 == 0 ? pair.playerOne : pair.playerTwo;
-            // pair.sendToPair(new SocketResponse("getQuestion", { question: "1 + 1", answer: 3, correct: false }))
-
             case "playerTwoName":
                 pair.sendToPair(new SocketResponse("playerTwoName", data.value))
                 break;
@@ -118,4 +115,4 @@ gameServer.on('connection', async (socket, request) => {
     })
 });
 
-module.exports = gameServer;
+module.exports = { gameServer, Pair };

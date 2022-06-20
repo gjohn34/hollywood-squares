@@ -16,6 +16,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 	}, [])
 
 	const newGame = e => {
+		console.log(JSON.stringify({ name: gameName, playerOne: user.username }))
 		fetch("http://localhost:8080/lobbies", {
 			method: "POST",
 			headers: { 'Content-Type': 'application/json' },
@@ -65,7 +66,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 		const ws = new WebSocket(`ws://localhost:8080/lobby`);
 
 		ws.onopen = (x) => {
-			console.log("Making connection")
+			console.log("Making lobby connection")
 			dispatch({ type: "setClient", value: ws })
 		}
 		ws.onmessage = ({ data }) => { console.log("new game"); fetchGames() }

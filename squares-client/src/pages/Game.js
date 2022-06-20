@@ -13,7 +13,14 @@ export default function Game() {
 
     const Player = {
         PlayerOne: "PlayerOne",
-        PlayerTwo: "PlayerTwo"
+        PlayerTwo: "PlayerTwo",
+        Next: player => {
+            if (player == Player.PlayerOne) {
+                return Player.PlayerTwo
+            } else if (player == Player.PlayerTwo) {
+                return Player.PlayerOne
+            }
+        }
     }
 
     const { state, dispatch } = useContext(Context)
@@ -25,6 +32,12 @@ export default function Game() {
     const [turn, setTurn] = useState(Player.PlayerOne)
     const [question, setQuestion] = useState(null)
     const [boardArray, setBoardArray] = useState([[null, null, null], [null, null, null], [null, null, null]])
+
+    useEffect(() => {
+        console.log("It is now " + turn + "'s turn")
+
+    }, [turn])
+
 
     useEffect(() => {
         if (!user) return
@@ -47,10 +60,8 @@ export default function Game() {
                 })
                 .then(data => {
                     if (data) {
-                        setPlayingAs(data.playerOne === user.username ? Player.PlayerOne : Player.PlayerTwo)
-                        console.log("data")
-                        console.log(data)
                         setGame(data)
+                        setPlayingAs(data.playerOne.id === user.id ? Player.PlayerOne : Player.PlayerTwo)
                         gameSocket(data)
                         window.sessionStorage.setItem("gameId", data._id)
                     }
@@ -66,6 +77,7 @@ export default function Game() {
     }, [gameState])
 
     const gameSocket = (initGame) => {
+
         let gameid = window.sessionStorage.getItem("gid")
         let uid = window.sessionStorage.getItem("uid")
         const ws = new WebSocket(`ws://localhost:8080/game?id=${gameid}&uid=${uid}`);
@@ -76,16 +88,13 @@ export default function Game() {
 
         ws.onmessage = ({ data }) => {
             let json = JSON.parse(data)
+            // console.log(json)
             console.log(json)
             switch (json.type) {
-                // case "initData":
-                //     if (!game) {
-                //         setGame({ ...initGame, playerTwo: json.value.playerTwo })
-                //     }
-                // break;
                 case "playerTwoName":
-                    if (json.value.playerTwo) {
-                        setGame({ ...initGame, playerTwo: json.value.playerTwo })
+                    if (json.value.username) {
+                        console.log("setting game")
+                        setGame({ ...initGame, playerTwo: json.value })
                         setGameState(GameState.Start)
                     }
                     break;
@@ -93,12 +102,23 @@ export default function Game() {
                     setQuestion(json.value)
                     break
                 case "getAnswer":
-                    let copy = [...boardArray]
                     const { row, column, value } = json.value
-                    copy[row][column] = value
-                    setBoardArray(copy)
+                    if (value == true) {
+                        let copy = [...boardArray]
+                        let cell;
+                        if (turn == Player.PlayerOne) {
+                            cell = 0
+                        } else {
+                            cell = 1
+                        }
+                        copy[row][column] = cell
+                        setBoardArray(copy)
+                    }
+                    setTurn(Player.Next(turn))
+                    setQuestion(null)
                     break;
                 default:
+                    console.log(json)
                     break;
             }
         }
@@ -109,6 +129,7 @@ export default function Game() {
 
     return (
         <div>
+            <p>👏</p>
             <GameLabel {...{ turn, game }} />
             <GameBoard {...{ turn, question, playingAs, boardArray }} />
         </div >

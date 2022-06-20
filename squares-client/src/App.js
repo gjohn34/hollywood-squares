@@ -24,7 +24,6 @@ function App() {
         credentials: "include"
       })
         .then(response => {
-          console.log(response.status)
           if (response.status === 200) {
             return response.json()
           } else {

@@ -1,22 +1,36 @@
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 
-const User = mongoose.model('User', new mongoose.Schema({
+const userSchema = new Schema({
     username: {
         type: String,
         unique: true
     },
-    password: String,
-}))
+    uid: {
+        type: String
+    },
+    password: { type: String, select: false }
+})
 
 
-const gameSchema = new mongoose.Schema({
+const questionSchema = new Schema({
+    text: String,
+    answer: String,
+    correct: Boolean
+});
+
+questionSchema.statics.random = async function (cb) {
+    let count = await model("Question").countDocuments()
+    let random = Math.floor(Math.random() * count)
+    return model("Question").findOne().skip(random).exec((e, doc) => cb(e, doc))
+}
+
+
+const gameSchema = new Schema({
     name: String,
     turn: Number,
-    playerOne: String,
-    playerOneIP: String,
-    playerTwo: String,
-    playerTwoIP: String,
-    question: String,
+    playerOne: { type: Schema.Types.ObjectId, ref: "User" },
+    playerTwo: { type: Schema.Types.ObjectId, ref: "User" },
+    question: { type: Schema.Types.ObjectId, ref: "Question" },
     board: {
         type: [[Number]],
         default: [
@@ -25,21 +39,8 @@ const gameSchema = new mongoose.Schema({
     }
 });
 
-const Game = mongoose.model('Game', gameSchema)
-
-
-const questionSchema = new mongoose.Schema({
-    text: String,
-    answer: String,
-    correct: Boolean
-});
-
-questionSchema.statics.random = async function (cb) {
-    let count = await mongoose.model("Question").countDocuments()
-    let random = Math.floor(Math.random() * count)
-    return mongoose.model("Question").findOne().skip(random).exec((e, doc) => cb(e, doc))
-}
-
-const Question = mongoose.model('Question', questionSchema)
+const User = model('User', userSchema)
+const Game = model('Game', gameSchema)
+const Question = model('Question', questionSchema)
 
 module.exports = { User, Game, Question }
