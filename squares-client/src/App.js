@@ -18,6 +18,7 @@ function App() {
   // auth user
   useEffect(() => {
     let uid = localStorage.getItem("uid")
+    console.log(uid)
     if (uid) {
       fetch("http://localhost:8080/auth/me", {
         method: "GET",
@@ -33,6 +34,8 @@ function App() {
         })
         .then(json => {
           if (!json) return
+          console.log(json)
+          // localStorage.setItem("uid", json.)
           dispatch({ type: "setUser", value: json })
         })
     }

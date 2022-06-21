@@ -8,7 +8,7 @@ async function connectToDb() {
 connectToDb().then(async () => {
   console.log("connected to db")
   Game.deleteMany({}, (e, d) => { console.log(d) })
-  // User.deleteMany({}, (e, d) => { console.log(d) })
+  User.deleteMany({}, (e, d) => { console.log(d) })
   if (Question.countDocuments() == 0) {
     Question.create([
       { text: "1 + 1", answer: "3", correct: false },
@@ -18,5 +18,3 @@ connectToDb().then(async () => {
   }
 
 }).catch(err => console.log(err));
-
-

@@ -1,11 +1,12 @@
 const WebSocket = require("ws")
 const { parse } = require('url');
 const { Game, User } = require('./models')
-
+const MongoStore = require('connect-mongo');
 const lobbyServer = require('./sockets/lobbyServer');
 const { gameServer, Pair } = require('./sockets/gameServer')
 
 require("./utils/db")
+
 
 Game.watch()
     .on('change', data => {
@@ -47,7 +48,10 @@ const { log } = require("console");
 const sessionParser = session({
     saveUninitialized: false,
     secret: 'secret',
-    resave: false
+    resave: false,
+    store: MongoStore.create({
+        mongoUrl: 'mongodb+srv://admin:qihQVpoE2GzzIThQ@cluster0.e43sxtl.mongodb.net/?authSource=admin&w=1'
+    })
 });
 
 app.use(session({
