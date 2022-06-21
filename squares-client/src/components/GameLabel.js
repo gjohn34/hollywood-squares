@@ -1,18 +1,15 @@
 import React from 'react'
 
-function GameLabel({ game, turn }) {
+function GameLabel({ game, playingAs }) {
     return (
         <>
+            <p>You are {playingAs}</p>
             {game && (
                 <>
-                    {console.log(game)}
                     <p>Player One: {game.playerOne?.username}</p>
                     <p>Player Two: {game.playerTwo?.username || "waiting for player two..."}</p>
-                    <p>Current Turn: {turn}</p>
-
                 </>
-            )
-            }
+            )}
         </>
     )
 }

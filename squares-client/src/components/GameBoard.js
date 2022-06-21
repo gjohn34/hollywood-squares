@@ -9,11 +9,12 @@ function GameBoard({ turn, question, playingAs, boardArray }) {
     const { client } = state
 
     const answer = bool => {
-        client.send(JSON.stringify({ type: "answerQuestion", value: bool }))
+        client.send(JSON.stringify({ type: "answerQuestion", value: bool, from: playingAs }))
     }
 
     return (
         <>
+            <p>Current Turn: {turn}</p>
             {turn === playingAs ? (
                 <>
                     {question && (

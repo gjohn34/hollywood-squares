@@ -7,35 +7,27 @@ import GameLabel from "../components/GameLabel"
 export default function Game() {
     // Lazy enum
     const GameState = {
+        Loading: "Loading",
         Waiting: "Waiting",
         Start: "Start",
     }
 
     const Player = {
         PlayerOne: "PlayerOne",
-        PlayerTwo: "PlayerTwo",
-        Next: player => {
-            if (player == Player.PlayerOne) {
-                return Player.PlayerTwo
-            } else if (player == Player.PlayerTwo) {
-                return Player.PlayerOne
-            }
-        }
+        PlayerTwo: "PlayerTwo"
     }
 
     const { state, dispatch } = useContext(Context)
     const { gameId, user } = state
     const [game, setGame] = useState(null)
-    const [gameState, setGameState] = useState(GameState.Waiting)
-    // const [prompt, setPrompt] = useState("")
+    const [gameState, setGameState] = useState(GameState.Loading)
     const [playingAs, setPlayingAs] = useState(null)
-    const [turn, setTurn] = useState(Player.PlayerOne)
+    const [turn, setTurn] = useState(null)
     const [question, setQuestion] = useState(null)
     const [boardArray, setBoardArray] = useState([[null, null, null], [null, null, null], [null, null, null]])
 
     useEffect(() => {
         console.log("It is now " + turn + "'s turn")
-
     }, [turn])
 
 
@@ -59,11 +51,14 @@ export default function Game() {
                     }
                 })
                 .then(data => {
+                    console.log(data)
                     if (data) {
                         setGame(data)
-                        setPlayingAs(data.playerOne.id === user.id ? Player.PlayerOne : Player.PlayerTwo)
-                        gameSocket(data)
-                        localStorage.setItem("gameId", data._id)
+                        setGameState(data.playerOne && data.playerTwo ? GameState.Start : GameState.Waiting)
+                        let x = data.playerOne._id == user._id ? Player.PlayerOne : Player.PlayerTwo
+                        setPlayingAs(x)
+                        gameSocket(data, x)
+                        localStorage.setItem("gid", data._id)
                     }
                 })
         }
@@ -76,8 +71,8 @@ export default function Game() {
         }
     }, [gameState])
 
-    const gameSocket = (initGame) => {
-
+    const gameSocket = (initGame, playingAs) => {
+        console.log(playingAs)
         let gameid = localStorage.getItem("gid")
         let uid = localStorage.getItem("uid")
         const ws = new WebSocket(`ws://localhost:8080/game?id=${gameid}&uid=${uid}`);
@@ -102,7 +97,7 @@ export default function Game() {
                     setQuestion(json.value)
                     break
                 case "getAnswer":
-                    const { row, column, value } = json.value
+                    const { row, column, value, from } = json.value
                     if (value == true) {
                         let copy = [...boardArray]
                         let cell;
@@ -114,7 +109,9 @@ export default function Game() {
                         copy[row][column] = cell
                         setBoardArray(copy)
                     }
-                    setTurn(Player.Next(turn))
+                    ///
+                    setTurn(from == Player.PlayerOne ? Player.PlayerTwo : Player.PlayerOne)
+                    ///
                     setQuestion(null)
                     break;
                 default:
@@ -129,9 +126,8 @@ export default function Game() {
 
     return (
         <div>
-            <p>👏</p>
-            <GameLabel {...{ turn, game }} />
-            <GameBoard {...{ turn, question, playingAs, boardArray }} />
+            <GameLabel {...{ game, playingAs }} />
+            {gameState == GameState.Start && <GameBoard {...{ turn, question, playingAs, boardArray }} />}
         </div >
     )
 }

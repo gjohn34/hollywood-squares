@@ -18,7 +18,6 @@ router.post("/signup", (req, res) => {
 
         req.session.uid = doc.id
         req.session.user = { username: doc.username, id: doc.id }
-        console.log(req.session)
         res.status(201).send(doc)
 
       })
@@ -52,18 +51,12 @@ router.get("/me", (req, res) => {
       req.session.destroy();
       res.send(401)
     } else {
-      req.session.regenerate(function (err) {
-        if (err) next(err)
-
-        req.session.user = { username: doc.username, id: doc.id }
-        console.log(req.session)
-
-        req.session.save(function (err) {
-          if (err) return next(err)
-        })
-        req.session.uid = doc.id
-        res.status(200).send(doc)
-      })
+      req.session.uid = doc.id
+      req.session.user = { username: doc.username, id: doc.id }
+      res.status(200).send(doc)
+      // req.session.regenerate(function (err) {
+      //   if (err) next(err)
+      // })
     }
   })
 })

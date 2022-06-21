@@ -88,7 +88,6 @@ gameServer.on('connection', async (socket, request) => {
                 // pair.sendToPair(new SocketResponse("getQuestion", { question: "1 + 1", answer: "3", correct: false }))
                 break;
             case "answerQuestion":
-                console.log("ans")
                 Question.findById((game.question), (e, doc) => {
                     if (doc.correct == data.value) {
 
@@ -97,10 +96,18 @@ gameServer.on('connection', async (socket, request) => {
                         board[row][column] = request.session.uid == game.playerOne.uid
 
                         Game.findOneAndUpdate(game.id, { board }, { returnDocument: true }, (e, doc) => {
-                            pair.sendToPair(new SocketResponse("getAnswer", { value: true, row: request.session.row, column: request.session.column }))
+                            pair.sendToPair(new SocketResponse("getAnswer", {
+                                value: true,
+                                from: data.from,
+                                row: request.session.row, column: request.session.column
+                            }))
                         })
                     } else {
-                        pair.sendToPair(new SocketResponse("getAnswer", { value: false, row: request.session.row, column: request.session.column }))
+                        pair.sendToPair(new SocketResponse("getAnswer", {
+                            value: false,
+                            from: data.from,
+                            row: request.session.row, column: request.session.column
+                        }))
                     }
                 })
                 break;

@@ -24,6 +24,8 @@ function BoardSquare({ playingAs, turn, display, row, column }) {
 
 
     const squareClick = () => {
+        console.log(playingAs)
+        console.log(turn)
         if (playingAs !== turn) return;
         client.send(JSON.stringify({ type: "getQuestion", value: { row, column } }))
     }

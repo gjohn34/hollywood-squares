@@ -19,6 +19,7 @@ router.post("/", async (req, res) => {
             return
         }
         req.session.gid = doc.id
+        console.log(req.session)
         res.send({ result: "Ok", _id: doc.id })
     })
 })
