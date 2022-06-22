@@ -1,5 +1,6 @@
 import { useState, useReducer, useEffect } from 'react'
-import Context, { initialData, reducer } from './context'
+import UserContext, { initialUserData, userReducer } from './userContext'
+import GameContext, { initialGameData, gameReducer } from './gameContext'
 
 import {
   BrowserRouter,
@@ -11,7 +12,8 @@ import LobbyIndex from "./pages/LobbyIndex.js"
 import Auth from './components/auth'
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialData);
+  const [userStore, userDispatch] = useReducer(userReducer, initialUserData);
+  const [gameStore, gameDispatch] = useReducer(gameReducer, initialGameData);
 
   const [gameName, setGameName] = useState("")
 
@@ -36,7 +38,7 @@ function App() {
           if (!json) return
           console.log(json)
           // localStorage.setItem("uid", json.)
-          dispatch({ type: "setUser", value: json })
+          userDispatch({ type: "setUser", value: json })
         })
     }
   }, [])
@@ -67,15 +69,17 @@ function App() {
   }, [])
 
   return (
-    <Context.Provider value={{ state, dispatch }}>
+    <UserContext.Provider value={{ userStore, userDispatch }}>
       <Auth />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LobbyIndex {...{ gameName, setGameName }} />} />
-          <Route path="/game" element={<Game />} />
-        </Routes>
-      </BrowserRouter>
-    </Context.Provider>
+      <GameContext.Provider value={{ gameStore, gameDispatch }}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LobbyIndex {...{ gameName, setGameName }} />} />
+            <Route path="/game" element={<Game />} />
+          </Routes>
+        </BrowserRouter>
+      </GameContext.Provider>
+    </UserContext.Provider >
   )
 }
 

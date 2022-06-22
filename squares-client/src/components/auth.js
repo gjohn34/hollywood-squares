@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useContext } from 'react'
-import Context from '../context'
+import React, { useState, useContext } from 'react'
+import UserContext from '../userContext'
 
 function Auth() {
-    const { state, dispatch } = useContext(Context)
+    const { userStore, userDispatch } = useContext(UserContext)
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
-    const { user } = state
+    const { user } = userStore
 
     const handleSubmit = e => {
         e.preventDefault()
@@ -26,7 +26,7 @@ function Auth() {
             .then(json => {
                 if (!json) return
                 localStorage.setItem("uid", json._id)
-                dispatch({ type: "setUser", value: json })
+                userDispatch({ type: "setUser", value: json })
 
             })
     }
@@ -52,7 +52,7 @@ function Auth() {
                 if (!json) return
 
                 localStorage.setItem("uid", json._id)
-                dispatch({ type: "setUser", value: json })
+                userDispatch({ type: "setUser", value: json })
             })
     }
 
@@ -68,7 +68,7 @@ function Auth() {
         })
             .then(response => {
                 if (response.status == 200) {
-                    dispatch({ type: "setUser", value: null })
+                    userDispatch({ type: "setUser", value: null })
                 }
             })
 

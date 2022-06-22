@@ -1,33 +1,19 @@
-import React, { useContext, useEffect } from 'react'
-import Context from '../context.js'
+import React, { useContext } from 'react'
 import BoardSquare from './BoardSquare.js'
+import GameContext from '../gameContext'
 
 
 
-function GameBoard({ turn, question, playingAs, boardArray }) {
-    const { state } = useContext(Context)
-    const { client } = state
 
-    const answer = bool => {
-        client.send(JSON.stringify({ type: "answerQuestion", value: bool, from: playingAs }))
-    }
+function GameBoard({ boardArray }) {
+    const { gameStore } = useContext(GameContext)
+    const { playingAs, turn } = gameStore
+    console.log(boardArray)
 
     return (
-        <>
+        <div style={{ width: "50%" }}>
             <p>Current Turn: {turn}</p>
-            {turn === playingAs ? (
-                <>
-                    {question && (
-                        <>
-                            <p>{question.text}</p>
-                            <p>Square says: {question.answer}</p>
-                            <p>True or false?</p>
-                            <button onClick={() => answer(true)}>True</button>
-                            <button onClick={() => answer(false)}>False</button>
-                        </>
-                    )}
-                </>
-            ) : <p>waiting on other player</p>}
+
             <div id="container">
                 {boardArray.map((subArray, row) => (
                     <div key={`${row}`} className="row">
@@ -37,7 +23,7 @@ function GameBoard({ turn, question, playingAs, boardArray }) {
                     </div>
                 ))}
             </div>
-        </>
+        </div>
 
     )
 }

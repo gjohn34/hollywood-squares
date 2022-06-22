@@ -1,9 +1,13 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import Context from './../context.js'
+import GameContext from '../gameContext.js'
+import UserContext from '../userContext.js'
+
 
 function BoardSquare({ playingAs, turn, display, row, column }) {
-    const { state } = useContext(Context)
-    const { client } = state
+    const { userStore } = useContext(UserContext)
+    const { gameStore } = useContext(GameContext)
+    const { client } = userStore
+    const { question } = gameStore
     const divEl = useRef(null)
 
     useEffect(() => {
@@ -24,8 +28,7 @@ function BoardSquare({ playingAs, turn, display, row, column }) {
 
 
     const squareClick = () => {
-        console.log(playingAs)
-        console.log(turn)
+        if (!!question) return
         if (playingAs !== turn) return;
         client.send(JSON.stringify({ type: "getQuestion", value: { row, column } }))
     }

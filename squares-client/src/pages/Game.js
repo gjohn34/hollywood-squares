@@ -1,29 +1,31 @@
 import { useContext, useEffect, useState } from "react"
 import "./game.css"
-import Context from '../context'
+import UserContext from '../userContext'
+import GameContext from '../gameContext'
 import GameBoard from "../components/GameBoard"
 import GameLabel from "../components/GameLabel"
 
+export const GameState = {
+    Loading: "Loading",
+    Waiting: "Waiting",
+    Start: "Start",
+}
+
+export const Player = {
+    PlayerOne: "PlayerOne",
+    PlayerTwo: "PlayerTwo"
+}
+
 export default function Game() {
     // Lazy enum
-    const GameState = {
-        Loading: "Loading",
-        Waiting: "Waiting",
-        Start: "Start",
-    }
 
-    const Player = {
-        PlayerOne: "PlayerOne",
-        PlayerTwo: "PlayerTwo"
-    }
+    const { userStore, userDispatch } = useContext(UserContext)
+    const { user } = userStore
+    const { gameStore, gameDispatch } = useContext(GameContext)
+    const { gameId, gameState, turn, question } = gameStore
 
-    const { state, dispatch } = useContext(Context)
-    const { gameId, user } = state
-    const [game, setGame] = useState(null)
-    const [gameState, setGameState] = useState(GameState.Loading)
-    const [playingAs, setPlayingAs] = useState(null)
-    const [turn, setTurn] = useState(null)
-    const [question, setQuestion] = useState(null)
+    // TODO
+    // Have board retrieved from game after fetch
     const [boardArray, setBoardArray] = useState([[null, null, null], [null, null, null], [null, null, null]])
 
     useEffect(() => {
@@ -35,7 +37,7 @@ export default function Game() {
         if (!user) return
         let gameid = localStorage.getItem("gid")
         if (!gameId && gameid) {
-            dispatch({ type: "setGameId", value: gameid })
+            gameDispatch({ type: "setGameId", value: gameid })
         }
         if (gameid) {
             fetch("http://localhost:8080/game", {
@@ -53,10 +55,10 @@ export default function Game() {
                 .then(data => {
                     console.log(data)
                     if (data) {
-                        setGame(data)
-                        setGameState(data.playerOne && data.playerTwo ? GameState.Start : GameState.Waiting)
+                        gameDispatch({ type: "setGame", value: data })
+                        gameDispatch({ type: "setGameState", value: data.playerOne && data.playerTwo ? GameState.Start : GameState.Waiting })
                         let x = data.playerOne._id == user._id ? Player.PlayerOne : Player.PlayerTwo
-                        setPlayingAs(x)
+                        gameDispatch({ type: "setPlayingAs", value: x })
                         gameSocket(data, x)
                         localStorage.setItem("gid", data._id)
                     }
@@ -67,41 +69,40 @@ export default function Game() {
     useEffect(() => {
         if (gameState === GameState.Start) {
             // setPrompt(`${game.turn % 2 == 0 ? game.playerOne : game.playerTwo}, select a square`)
-            setTurn(Player.PlayerOne)
+            gameDispatch({ type: "setTurn", value: Player.PlayerOne })
         }
     }, [gameState])
 
     const gameSocket = (initGame, playingAs) => {
-        console.log(playingAs)
         let gameid = localStorage.getItem("gid")
         let uid = localStorage.getItem("uid")
         const ws = new WebSocket(`ws://localhost:8080/game?id=${gameid}&uid=${uid}`);
         ws.onopen = () => {
             console.log("Making game connection")
-            dispatch({ type: "setClient", value: ws })
+            userDispatch({ type: "setClient", value: ws })
         }
 
         ws.onmessage = ({ data }) => {
             let json = JSON.parse(data)
             // console.log(json)
-            console.log(json)
             switch (json.type) {
                 case "playerTwoName":
                     if (json.value.username) {
                         console.log("setting game")
-                        setGame({ ...initGame, playerTwo: json.value })
-                        setGameState(GameState.Start)
+                        gameDispatch({ type: "setGame", value: { ...initGame, playerTwo: json.value } })
+                        gameDispatch({ type: "setGameState", value: GameState.Start })
                     }
                     break;
                 case "getQuestion":
-                    setQuestion(json.value)
+                    console.log('question   ')
+                    gameDispatch({ type: "setQuestion", value: json.value })
                     break
                 case "getAnswer":
                     const { row, column, value, from } = json.value
                     if (value == true) {
                         let copy = [...boardArray]
                         let cell;
-                        if (turn == Player.PlayerOne) {
+                        if (from == Player.PlayerOne) {
                             cell = 0
                         } else {
                             cell = 1
@@ -109,10 +110,9 @@ export default function Game() {
                         copy[row][column] = cell
                         setBoardArray(copy)
                     }
-                    ///
-                    setTurn(from == Player.PlayerOne ? Player.PlayerTwo : Player.PlayerOne)
-                    ///
-                    setQuestion(null)
+                    gameDispatch({ type: "setTurn", value: from == Player.PlayerOne ? Player.PlayerTwo : Player.PlayerOne })
+                    gameDispatch({ type: "setQuestion", value: null })
+
                     break;
                 default:
                     console.log(json)
@@ -125,9 +125,9 @@ export default function Game() {
     }
 
     return (
-        <div>
-            <GameLabel {...{ game, playingAs }} />
-            {gameState == GameState.Start && <GameBoard {...{ turn, question, playingAs, boardArray }} />}
+        <div style={{ display: "flex" }}>
+            <GameLabel />
+            {gameState == GameState.Start && <GameBoard {...{ boardArray }} />}
         </div >
     )
 }

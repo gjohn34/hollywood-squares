@@ -1,10 +1,12 @@
 import { useState, useEffect, useContext } from 'react'
 import { useNavigate } from "react-router-dom";
-import Context from '../context'
+import GameContext from '../gameContext';
+import UserContext from '../userContext'
 
 export default function LobbyIndex({ gameName, setGameName }) {
-	const { state, dispatch } = useContext(Context)
-	const { client, user } = state
+	const { userStore, userDispatch } = useContext(UserContext)
+	const { gameDispatch } = useContext(GameContext)
+	const { client, user } = userStore
 	const [games, setGames] = useState([])
 	let navigate = useNavigate();
 
@@ -26,7 +28,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 			.then(response => response.json())
 			.then(data => {
 				if (client) client.close()
-				dispatch({ type: "setGameId", value: data._id })
+				gameDispatch({ type: "setGameId", value: data._id })
 				localStorage.setItem("gid", data._id)
 				navigate('/game')
 			})
@@ -41,7 +43,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 			.then(response => response.json())
 			.then(data => {
 				if (client) client.close()
-				dispatch({ type: "setGameId", value: data._id })
+				gameDispatch({ type: "setGameId", value: data._id })
 				localStorage.setItem("gid", data._id)
 				navigate('/game')
 
@@ -67,7 +69,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 
 		ws.onopen = (x) => {
 			console.log("Making lobby connection")
-			dispatch({ type: "setClient", value: ws })
+			userDispatch({ type: "setClient", value: ws })
 		}
 		ws.onmessage = ({ data }) => { console.log("new game"); fetchGames() }
 		ws.onclose = (x) => {

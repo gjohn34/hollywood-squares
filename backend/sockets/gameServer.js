@@ -93,7 +93,7 @@ gameServer.on('connection', async (socket, request) => {
 
                         let board = [...game.board]
                         const { row, column } = request.session
-                        board[row][column] = request.session.uid == game.playerOne.uid
+                        board[row][column] = request.session.uid == game.playerOne.toString()
 
                         Game.findOneAndUpdate(game.id, { board }, { returnDocument: true }, (e, doc) => {
                             pair.sendToPair(new SocketResponse("getAnswer", {
