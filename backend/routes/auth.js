@@ -3,7 +3,6 @@ const { User } = require("../models")
 const router = require("express").Router()
 
 function isAuthenticated(req, res, next) {
-  console.log(req.session.user)
   if (req.session.user) next()
   else next('route')
 }
@@ -54,9 +53,6 @@ router.get("/me", (req, res) => {
       req.session.uid = doc.id
       req.session.user = { username: doc.username, id: doc.id }
       res.status(200).send(doc)
-      // req.session.regenerate(function (err) {
-      //   if (err) next(err)
-      // })
     }
   })
 })

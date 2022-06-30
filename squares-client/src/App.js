@@ -20,7 +20,6 @@ function App() {
   // auth user
   useEffect(() => {
     let uid = localStorage.getItem("uid")
-    console.log(uid)
     if (uid) {
       fetch("http://localhost:8080/auth/me", {
         method: "GET",
@@ -36,7 +35,6 @@ function App() {
         })
         .then(json => {
           if (!json) return
-          console.log(json)
           // localStorage.setItem("uid", json.)
           userDispatch({ type: "setUser", value: json })
         })
@@ -45,27 +43,7 @@ function App() {
 
   // setup game on page refresh
   useEffect(() => {
-    // let gid = localStorage.getItem("uid")
-    // if (gid) {
-    //   fetch("http://localhost:8080/game", {
-    //     method: "GET",
-    //     credentials: "include"
-    //   })
-    //     .then(response => {
-    //       if (response.status == 200) {
-    //         return response.json()
-    //       } else {
-    //         localStorage.removeItem("gid")
-    //         return
-    //       }
-    //     })
-    //     .then(json => {
-    //       if (!json) return
 
-    //       dispatch({ type: "setGameId", value: json._id })
-    //       dispatch({ type: "setGame", value: json })
-    //     })
-    // }
   }, [])
 
   return (

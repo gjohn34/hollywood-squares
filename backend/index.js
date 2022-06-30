@@ -16,19 +16,8 @@ Game.watch()
                 Game.findById(data.documentKey._id, (e, doc) => {
                     if (e) return
                     let pair = Pair.findPairByGame(doc)
-                    // User.findById(data.updateDescription.updatedFields.playerTwo)
-                    //     .then(u =>
-                    //         pair.playerOne.send(JSON.stringify({ type: "playerTwoName", value: { playerTwo: data.updateDescription.updatedFields.playerTwo } }))
-                    //     )
                 })
-                // if (data.updateDescription.updatedFields.hasOwnProperty('playerTwo')) {
-                //     Game.findById(data.documentKey.id, (e, doc) => {
-                //         if (e) throw e
-                //         console.log("--------------------------");
-                //         console.log(e)
-                //         console.log("--------------------------");
-                //     })
-                // }
+
                 break;
             case "insert":
                 lobbyServer.clients.forEach(function each(client) {

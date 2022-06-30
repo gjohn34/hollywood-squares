@@ -34,7 +34,6 @@ class Board {
         const result = this.#threeInARow(value)
         if (result) {
             return true
-            // return [winner, player]
         }
 
         let winner = false
@@ -59,7 +58,6 @@ class Board {
             row.forEach(cell => subArray.push(cell.value))
             array.push(subArray)
         })
-        console.log(array)
         return array
     }
 
@@ -74,7 +72,6 @@ class Board {
             }
         })
         if (result) return result
-        console.log("no hori - moving on")
 
         // Vertical
         let verticalList = zip(...this.board)
@@ -84,7 +81,6 @@ class Board {
             }
         })
         if (result) return result
-        console.log("no vert - moving on")
 
 
         // Diagonal

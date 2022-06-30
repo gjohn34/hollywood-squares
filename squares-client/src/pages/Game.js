@@ -28,7 +28,7 @@ export default function Game() {
     const [winner, setWinner] = useState(null)
 
     // TODO
-    // Have board retrieved from game after fetch
+    // Have board retrieved from game after fetch with right colours
     const [boardArray, setBoardArray] = useState([[null, null, null], [null, null, null], [null, null, null]])
 
     const getMessage = (turn, username) => {
@@ -44,7 +44,6 @@ export default function Game() {
 
     useEffect(() => {
         if (!user || !game) return
-        console.log("It is now " + turn + "'s turn")
         setPromptMessage(getMessage(turn, user.username))
     }, [turn])
 
@@ -69,7 +68,6 @@ export default function Game() {
                     }
                 })
                 .then(data => {
-                    console.log(data)
                     if (data) {
                         gameDispatch({ type: "setGame", value: data })
                         setBoardArray(data.board)
@@ -87,7 +85,6 @@ export default function Game() {
 
     useEffect(() => {
         if (gameState === GameState.Start) {
-            // setPrompt(`${game.turn % 2 == 0 ? game.playerOne : game.playerTwo}, select a square`)
             gameDispatch({ type: "setTurn", value: Player.PlayerOne })
         }
     }, [gameState])
@@ -97,23 +94,19 @@ export default function Game() {
         let uid = localStorage.getItem("uid")
         const ws = new WebSocket(`ws://localhost:8080/game?id=${gameid}&uid=${uid}`);
         ws.onopen = () => {
-            console.log("Making game connection")
             userDispatch({ type: "setClient", value: ws })
         }
 
         ws.onmessage = ({ data }) => {
             let json = JSON.parse(data)
-            // console.log(json)
             switch (json.type) {
                 case "playerTwoName":
                     if (json.value.username) {
-                        console.log("setting game")
                         gameDispatch({ type: "setGame", value: { ...initGame, playerTwo: json.value } })
                         gameDispatch({ type: "setGameState", value: GameState.Start })
                     }
                     break;
                 case "getQuestion":
-                    console.log('question   ')
                     gameDispatch({ type: "setQuestion", value: json.value })
                     break
                 case "getAnswer":
@@ -136,16 +129,13 @@ export default function Game() {
                 case "gameOver":
                     // gameState not context?
                     gameDispatch({ type: "setGameState", value: GameState.Finished })
-                    console.log(json)
                     setWinner(json.value.value)
                     break;
                 default:
-                    console.log(json)
                     break;
             }
         }
         ws.onclose = () => {
-            console.log("closing");
         }
     }
 
