@@ -5,7 +5,7 @@ import GameContext from '../gameContext'
 
 
 
-function GameBoard({ boardArray }) {
+function GameBoard({ boardArray, promptMessage }) {
     const { gameStore } = useContext(GameContext)
     const { playingAs, turn } = gameStore
     console.log(boardArray)
@@ -13,6 +13,7 @@ function GameBoard({ boardArray }) {
     return (
         <div style={{ width: "50%" }}>
             <p>Current Turn: {turn}</p>
+            <p>{promptMessage}</p>
 
             <div id="container">
                 {boardArray.map((subArray, row) => (

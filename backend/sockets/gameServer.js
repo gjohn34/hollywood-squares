@@ -1,5 +1,6 @@
 const { WebSocketServer } = require("ws")
 const { Game, Question } = require('../models')
+const zip = require("lodash.zip")
 
 const map = new Map()
 const gameServer = new WebSocketServer({ noServer: true });
@@ -8,6 +9,87 @@ class SocketResponse {
     constructor(type, value) {
         if (!type || !value) throw Error
         this.type = type
+        this.value = value
+    }
+}
+
+class Board {
+    constructor(array) {
+        this.board = []
+        let tempRow = []
+        array.forEach(row => {
+            row.forEach(column => {
+                tempRow.push(new Cell(column))
+            })
+            this.board.push(tempRow)
+            tempRow = []
+        })
+    }
+
+    hasWinner = (value) => {
+        const result = this.#threeInARow(value)
+        if (result) {
+            return true
+            // return [winner, player]
+        }
+
+        let winner = false
+        let flatBoard = this.board.flat()
+        let score = 0
+
+        flatBoard.forEach(cell => {
+            if (cell.value == value) {
+                score += 1
+            }
+        })
+        if (score >= 5) {
+            return true
+        }
+        return false
+    }
+
+    #threeInARow = value => {
+        // Horizontal
+        let result = false
+
+        // change this to for loop for efficiency
+        this.board.forEach(row => {
+            if (this.#isRowEvery(row, value)) {
+                result = true
+            }
+        })
+        if (result) return result
+        console.log("no hori - moving on")
+
+        // Vertical
+        let verticalList = zip(...this.board)
+        verticalList.forEach(row => {
+            if (this.#isRowEvery(row, value)) {
+                result = true
+            }
+        })
+        if (result) return result
+        console.log("no vert - moving on")
+
+
+        // Diagonal
+        // is there a better way?
+        if (this.#isRowEvery([this.board[0][0], this.board[1][1], this.board[2][2]], value)) return true
+        if (this.#isRowEvery([this.board[0][2], this.board[1][1], this.board[2][0]], value)) return true
+
+        return result
+    }
+
+    #isRowEvery = (row, value) => {
+        if (row.every(cell => cell.value == value)) {
+            return true
+        }
+        return false
+    }
+}
+
+class Cell {
+    constructor(value) {
         this.value = value
     }
 }
@@ -93,9 +175,16 @@ gameServer.on('connection', async (socket, request) => {
 
                         let board = [...game.board]
                         const { row, column } = request.session
-                        board[row][column] = request.session.uid == game.playerOne.toString()
+                        console.log(board)
+                        console.log(row, column)
+                        let player = request.session.uid == game.playerOne.toString()
+                        board[row][column] = player
 
-                        Game.findOneAndUpdate(game.id, { board }, { returnDocument: true }, (e, doc) => {
+                        let boardInstance = new Board([...board])
+                        let winner = boardInstance.hasWinner(player)
+                        console.log("do we have a winner? " + Boolean(winner))
+                        Game.findOneAndUpdate(game.id, { board, turn: game.turn + 1 }, { returnDocument: true }, (e, doc) => {
+
                             pair.sendToPair(new SocketResponse("getAnswer", {
                                 value: true,
                                 from: data.from,
@@ -122,4 +211,4 @@ gameServer.on('connection', async (socket, request) => {
     })
 });
 
-module.exports = { gameServer, Pair };
+module.exports = { gameServer, Pair, Board, Cell };

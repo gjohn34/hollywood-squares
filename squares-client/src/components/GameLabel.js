@@ -27,13 +27,13 @@ function GameLabel() {
                     <>
                         <p>{question.text}</p>
                         <p>Square says: {question.answer}</p>
-                        <p>True or false?</p>
-                        {turn === playingAs ? (
+                        {turn === playingAs && (
                             <>
+                                <p>True or false?</p>
                                 <button onClick={() => answer(true)}>True</button>
                                 <button onClick={() => answer(false)}>False</button>
                             </>
-                        ) : <p>waiting on other player</p>}
+                        )}
                     </>
                 )}
             </>

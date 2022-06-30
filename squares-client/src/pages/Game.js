@@ -22,14 +22,28 @@ export default function Game() {
     const { userStore, userDispatch } = useContext(UserContext)
     const { user } = userStore
     const { gameStore, gameDispatch } = useContext(GameContext)
-    const { gameId, gameState, turn, question } = gameStore
+    const { gameId, gameState, turn, question, playingAs, game } = gameStore
+    const [promptMessage, setPromptMessage] = useState("")
 
     // TODO
     // Have board retrieved from game after fetch
     const [boardArray, setBoardArray] = useState([[null, null, null], [null, null, null], [null, null, null]])
 
+    const getMessage = (turn, username) => {
+        if (turn == playingAs) {
+            if (playingAs == Player.PlayerOne) {
+                return `${game.playerOne.username}, choose a square`
+            } else {
+                return `${game.playerTwo.username}, choose a square`
+            }
+        }
+        return "waiting on other player"
+    }
+
     useEffect(() => {
+        if (!user || !game) return
         console.log("It is now " + turn + "'s turn")
+        setPromptMessage(getMessage(turn, user.username))
     }, [turn])
 
 
@@ -56,9 +70,12 @@ export default function Game() {
                     console.log(data)
                     if (data) {
                         gameDispatch({ type: "setGame", value: data })
+                        setBoardArray(data.board)
                         gameDispatch({ type: "setGameState", value: data.playerOne && data.playerTwo ? GameState.Start : GameState.Waiting })
                         let x = data.playerOne._id == user._id ? Player.PlayerOne : Player.PlayerTwo
+                        gameDispatch({ type: "setQuestion", value: data.question })
                         gameDispatch({ type: "setPlayingAs", value: x })
+                        gameDispatch({ type: "setTurn", value: data.turn % 2 == 0 ? Player.PlayerOne : Player.PlayerTwo })
                         gameSocket(data, x)
                         localStorage.setItem("gid", data._id)
                     }
@@ -127,7 +144,7 @@ export default function Game() {
     return (
         <div style={{ display: "flex" }}>
             <GameLabel />
-            {gameState == GameState.Start && <GameBoard {...{ boardArray }} />}
+            {gameState == GameState.Start && <GameBoard {...{ boardArray, promptMessage }} />}
         </div >
     )
 }
