@@ -9,6 +9,7 @@ export const GameState = {
     Loading: "Loading",
     Waiting: "Waiting",
     Start: "Start",
+    Finished: "Finished"
 }
 
 export const Player = {
@@ -24,6 +25,7 @@ export default function Game() {
     const { gameStore, gameDispatch } = useContext(GameContext)
     const { gameId, gameState, turn, question, playingAs, game } = gameStore
     const [promptMessage, setPromptMessage] = useState("")
+    const [winner, setWinner] = useState(null)
 
     // TODO
     // Have board retrieved from game after fetch
@@ -131,6 +133,12 @@ export default function Game() {
                     gameDispatch({ type: "setQuestion", value: null })
 
                     break;
+                case "gameOver":
+                    // gameState not context?
+                    gameDispatch({ type: "setGameState", value: GameState.Finished })
+                    console.log(json)
+                    setWinner(json.value.value)
+                    break;
                 default:
                     console.log(json)
                     break;
@@ -142,9 +150,13 @@ export default function Game() {
     }
 
     return (
-        <div style={{ display: "flex" }}>
-            <GameLabel />
-            {gameState == GameState.Start && <GameBoard {...{ boardArray, promptMessage }} />}
-        </div >
+        <>
+            {winner ? <p>winner winner {winner}</p> : (
+                <div style={{ display: "flex" }}>
+                    <GameLabel />
+                    {gameState == GameState.Start && <GameBoard {...{ boardArray, promptMessage }} />}
+                </div >
+            )}
+        </>
     )
 }

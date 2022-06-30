@@ -26,6 +26,10 @@ class Board {
         })
     }
 
+    correctAnswer = (row, column, value) => {
+        this.board[row][column].correct(value)
+    }
+
     hasWinner = (value) => {
         const result = this.#threeInARow(value)
         if (result) {
@@ -46,6 +50,17 @@ class Board {
             return true
         }
         return false
+    }
+
+    toArray = () => {
+        const array = []
+        this.board.forEach(row => {
+            let subArray = []
+            row.forEach(cell => subArray.push(cell.value))
+            array.push(subArray)
+        })
+        console.log(array)
+        return array
     }
 
     #threeInARow = value => {
@@ -92,6 +107,9 @@ class Cell {
     constructor(value) {
         this.value = value
     }
+    correct = (value) => {
+        this.value = value
+    }
 }
 
 class Pair {
@@ -122,6 +140,7 @@ class Pair {
 }
 gameServer.on('connection', async (socket, request) => {
     let game = await Game.findById(request.session.gid).populate(['playerOne', 'playerTwo', "question"])
+
     if (!game) {
         socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
         socket.destroy();
@@ -153,43 +172,38 @@ gameServer.on('connection', async (socket, request) => {
         pair = map.get(game.id);
         game = await Game.findById(request.session.gid)
 
+
         switch (data.type) {
             case "getQuestion":
                 Question.random(async (e, doc) => {
-                    // game.question = doc.id
-                    // console.log(doc.id)
-                    let board = [...game.board]
                     const { row, column } = data.value
-                    board[row][column] = 0
                     request.session.row = row
                     request.session.column = column
-                    game = await Game.findByIdAndUpdate(game.id, { question: doc.id, board }, { returnDocument: true })
+                    game = await Game.findByIdAndUpdate(game.id, { question: doc.id }, { returnDocument: 'after' })
                     pair.sendToPair(new SocketResponse("getQuestion", doc.toObject()))
                 })
-                // Question.random((e, doc) => pair.sendToPair(new SocketResponse("getQuestion", doc.toObject())))
-                // pair.sendToPair(new SocketResponse("getQuestion", { question: "1 + 1", answer: "3", correct: false }))
                 break;
             case "answerQuestion":
                 Question.findById((game.question), (e, doc) => {
                     if (doc.correct == data.value) {
-
-                        let board = [...game.board]
                         const { row, column } = request.session
-                        console.log(board)
-                        console.log(row, column)
-                        let player = request.session.uid == game.playerOne.toString()
-                        board[row][column] = player
+                        const player = request.session.uid == game.playerOne.toString()
+                        const boardInstance = new Board([...game.board])
+                        boardInstance.correctAnswer(row, column, player)
+                        const winner = boardInstance.hasWinner(player)
 
-                        let boardInstance = new Board([...board])
-                        let winner = boardInstance.hasWinner(player)
-                        console.log("do we have a winner? " + Boolean(winner))
-                        Game.findOneAndUpdate(game.id, { board, turn: game.turn + 1 }, { returnDocument: true }, (e, doc) => {
-
-                            pair.sendToPair(new SocketResponse("getAnswer", {
-                                value: true,
-                                from: data.from,
-                                row: request.session.row, column: request.session.column
-                            }))
+                        Game.findOneAndUpdate(game.id, { board: boardInstance.toArray(), turn: game.turn + 1 }, { returnDocument: true }, (e, doc) => {
+                            if (Boolean(winner)) {
+                                pair.sendToPair(new SocketResponse("gameOver", {
+                                    value: player == 1 ? "PlayerOne" : "PlayerTwo"
+                                }))
+                            } else {
+                                pair.sendToPair(new SocketResponse("getAnswer", {
+                                    value: true,
+                                    from: data.from,
+                                    row: request.session.row, column: request.session.column
+                                }))
+                            }
                         })
                     } else {
                         pair.sendToPair(new SocketResponse("getAnswer", {
