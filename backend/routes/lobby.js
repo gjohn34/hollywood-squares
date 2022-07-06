@@ -14,12 +14,12 @@ router.post("/", async (req, res) => {
         turn: 0,
     }, (err, doc) => {
         if (err) {
+            console.log('there was an error')
             console.log(err)
             res.send(400)
             return
         }
         req.session.gid = doc.id
-        console.log(req.session)
         res.send({ result: "Ok", _id: doc.id })
     })
 })

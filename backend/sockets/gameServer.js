@@ -218,6 +218,7 @@ gameServer.on('connection', async (socket, request) => {
         }
     })
     socket.on("close", () => {
+        console.log("Closing connection to game")
     })
 });
 

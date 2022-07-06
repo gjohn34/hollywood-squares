@@ -11,6 +11,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 	let navigate = useNavigate();
 
 	useEffect(() => {
+		console.log(client)
 		if (!client) {
 			connect();
 		}
@@ -65,6 +66,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 
 	const connect = () => {
 		const ws = new WebSocket(`ws://localhost:8080/lobby`);
+		console.log("connecting")
 
 		ws.onopen = (x) => {
 			userDispatch({ type: "setClient", value: ws })

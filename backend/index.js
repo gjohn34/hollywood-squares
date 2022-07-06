@@ -10,6 +10,7 @@ require("./utils/db")
 
 Game.watch()
     .on('change', data => {
+        console.log(data.operationType)
         switch (data.operationType) {
             case "update":
                 console.log(data.operationType)
@@ -26,6 +27,12 @@ Game.watch()
                     }
                 });
                 break
+            case "delete":
+                lobbyServer.clients.forEach(function each(client) {
+                    if (client.readyState === WebSocket.OPEN && client.ip != data.playerOne) {
+                        client.send("game deleted");
+                    }
+                });
             default:
                 break;
         }

@@ -15,4 +15,14 @@ router.patch("/:id", async (req, res) => {
     res.send(game)
 })
 
+router.delete("/:id", (req, res) => {
+    Game.findByIdAndDelete(req.params.id, (err, doc) => {
+        if (err) {
+            res.status(400).send(err)
+        } else {
+            res.sendStatus(204)
+        }
+    })
+})
+
 module.exports = router;

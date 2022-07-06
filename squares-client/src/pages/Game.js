@@ -136,6 +136,7 @@ export default function Game() {
             }
         }
         ws.onclose = () => {
+            userDispatch({ type: "setClient", value: null })
         }
     }
 

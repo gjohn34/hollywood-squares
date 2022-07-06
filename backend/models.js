@@ -28,8 +28,8 @@ questionSchema.statics.random = async function (cb) {
 const gameSchema = new Schema({
     name: String,
     turn: Number,
-    playerOne: { type: Schema.Types.ObjectId, ref: "User" },
-    playerTwo: { type: Schema.Types.ObjectId, ref: "User" },
+    playerOne: { type: Schema.Types.ObjectId, ref: "User", unique: false },
+    playerTwo: { type: Schema.Types.ObjectId, ref: "User", unique: false },
     question: { type: Schema.Types.ObjectId, ref: "Question" },
     board: {
         type: [[Number]],
