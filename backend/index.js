@@ -22,15 +22,16 @@ Game.watch()
                 break;
             case "insert":
                 lobbyServer.clients.forEach(function each(client) {
-                    if (client.readyState === WebSocket.OPEN && client.ip != data.playerOne) {
-                        client.send("new game started");
+                    if (client.readyState === WebSocket.OPEN && client.uid != data.playerOne) {
+                        client.send(JSON.stringify({ type: "new" }));
                     }
                 });
                 break
             case "delete":
+                console.log(data.documentKey._id.toString())
                 lobbyServer.clients.forEach(function each(client) {
-                    if (client.readyState === WebSocket.OPEN && client.ip != data.playerOne) {
-                        client.send("game deleted");
+                    if (client.readyState === WebSocket.OPEN && (client.uid != data.playerOne || client.uid != data.playerTwo)) {
+                        client.send(JSON.stringify({ type: "delete", value: data.documentKey._id.toString() }))
                     }
                 });
             default:
@@ -81,6 +82,8 @@ server.on('upgrade', (request, socket, head) => {
     sessionParser(request, {}, () => {
         const { pathname, query } = parse(request.url);
         if (pathname == "/lobby") {
+            let params = query.split("&")
+            socket.uid = params[0].split("=")[1]
             lobbyServer.handleUpgrade(request, socket, head, socket => {
                 lobbyServer.emit('connection', socket, request);
             });

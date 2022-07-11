@@ -8,7 +8,6 @@ import GameContext from '../gameContext'
 function GameBoard({ boardArray, promptMessage }) {
     const { gameStore } = useContext(GameContext)
     const { playingAs, turn } = gameStore
-    console.log(boardArray)
 
     return (
         <div style={{ width: "50%" }}>
