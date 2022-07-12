@@ -10,7 +10,6 @@ lobbyServer.on('connection', (socket, request) => {
         console.log('-=============================')
         switch (json.type) {
             case "join":
-                // TODO - have the state trigger a useEffect that takes the data to update. the "games" don't live in the onMessage :(
                 let d = JSON.stringify({
                     type: "join",
                     value: { gid: json.value, uid: socket.uid }

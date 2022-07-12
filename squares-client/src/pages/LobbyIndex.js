@@ -24,12 +24,16 @@ export default function LobbyIndex({ gameName, setGameName }) {
 		if (!lobbyUpdate) return
 
 		switch (lobbyUpdate.type) {
+			case "new":
+				setGames([...games, lobbyUpdate.value])
+				break;
 			case "update":
 				let docs = [...games]
 				let game = docs.find(x => x._id == lobbyUpdate.value.gid)
 				game.playerTwo = lobbyUpdate.value.uid
 
 				setGames(docs)
+				break;
 			case "delete":
 				setGames(games.filter(x => x._id != lobbyUpdate.value))
 				break;
@@ -103,7 +107,10 @@ export default function LobbyIndex({ gameName, setGameName }) {
 			switch (json.type) {
 				case "new":
 					console.log("new game")
-					fetchGames()
+					console.log(json)
+					setLobbyUpdate({ type: "new", value: json.value })
+
+					// fetchGames()
 					break
 				case "join":
 					// const { gid, uid } = json.value
@@ -148,6 +155,7 @@ export default function LobbyIndex({ gameName, setGameName }) {
 						padding: "10px"
 
 					}}>
+						{console.log(game)}
 						<p>{game.name}</p>
 						{!!game.playerTwo ? (
 							<>

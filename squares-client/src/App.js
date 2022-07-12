@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import Game from "./pages/Game.js"
 import LobbyIndex from "./pages/LobbyIndex.js"
-import Auth, { AuthWrapper } from './components/auth'
+import { AuthWrapper } from './components/auth'
 
 
 function App() {
@@ -72,7 +72,7 @@ function App() {
       {userStore.user && (
 
         <GameContext.Provider value={{ gameStore, gameDispatch }}>
-          <p style={{ textAlign: "right" }}>playing as {userStore.user.username}<button onClick={logout}>logout</button></p>
+          <p style={{ textAlign: 'right' }}>playing as {userStore.user.username}<button onClick={logout}>logout</button></p>
           <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
             <BrowserRouter>
               <Routes>

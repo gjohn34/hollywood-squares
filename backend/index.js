@@ -23,7 +23,7 @@ Game.watch()
             case "insert":
                 lobbyServer.clients.forEach(function each(client) {
                     if (client.readyState === WebSocket.OPEN && client.uid != data.playerOne) {
-                        client.send(JSON.stringify({ type: "new" }));
+                        client.send(JSON.stringify({ type: "new", value: data.fullDocument }));
                     }
                 });
                 break
