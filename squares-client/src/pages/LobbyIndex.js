@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import GameContext from '../gameContext';
 import UserContext from '../userContext'
 
-export default function LobbyIndex({ gameName, setGameName }) {
+export default function LobbyIndex() {
+	const [gameName, setGameName] = useState("")
+
 	const { userStore, userDispatch } = useContext(UserContext)
 	const { gameDispatch } = useContext(GameContext)
 	const { client, user } = userStore
@@ -106,16 +108,10 @@ export default function LobbyIndex({ gameName, setGameName }) {
 			const json = JSON.parse(data)
 			switch (json.type) {
 				case "new":
-					console.log("new game")
-					console.log(json)
 					setLobbyUpdate({ type: "new", value: json.value })
-
-					// fetchGames()
 					break
 				case "join":
-					// const { gid, uid } = json.value
 					setLobbyUpdate({ type: "update", value: { ...json.value } })
-					// updateGames(json.value.gid, json.value.uid)
 					break
 				case "delete":
 					setLobbyUpdate({ type: "delete", value: json.value })
@@ -155,7 +151,6 @@ export default function LobbyIndex({ gameName, setGameName }) {
 						padding: "10px"
 
 					}}>
-						{console.log(game)}
 						<p>{game.name}</p>
 						{!!game.playerTwo ? (
 							<>

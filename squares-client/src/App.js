@@ -6,10 +6,67 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  useLocation,
 } from "react-router-dom";
 import Game from "./pages/Game.js"
 import LobbyIndex from "./pages/LobbyIndex.js"
 import { AuthWrapper } from './components/auth'
+import { SwitchTransition, Transition, TransitionGroup } from 'react-transition-group';
+
+
+
+function AnimatedSwitch() {
+  const location = useLocation()
+
+  const defaultStyle = {
+    transition: "transform 300ms",
+    // , opacity 300ms",
+  }
+
+  const transitionStyles = {
+    entering: {
+      transform: 'translateX(0)',
+      // opacity: 0,
+      zIndex: 1,
+    },
+    entered: {
+      transform: 'translateX(0)',
+      // opacity: 1,
+      zIndex: 1,
+    },
+    exiting: {
+      transform: 'translateX(-100%)',
+      // opacity: 1,
+      zIndex: 4,
+    },
+    exited: {
+      transform: 'translateX(-100%)',
+      // opacity: 0,
+      zIndex: 4,
+    }
+  };
+
+  return (
+    <TransitionGroup component={null}>
+      <Transition
+        key={location.pathname}
+        timeout={300}
+      >
+        {state => (
+          <Routes>
+            {console.log(`location: ${location.pathname} is ${state}`)}
+            <Route path="/" element={<PageWrapper styles={{ ...defaultStyle, ...transitionStyles[state] }}><LobbyIndex /></PageWrapper>} />
+            <Route path="/game" element={<PageWrapper styles={{ ...defaultStyle, ...transitionStyles[state] }}><Game /></PageWrapper>} />
+          </Routes>
+        )}
+      </Transition>
+    </TransitionGroup>
+  )
+}
+
+function PageWrapper({ styles, children }) {
+  return <main style={{ ...styles }}>{children}</main>
+}
 
 
 function App() {
@@ -73,16 +130,12 @@ function App() {
 
         <GameContext.Provider value={{ gameStore, gameDispatch }}>
           <p style={{ textAlign: 'right' }}>playing as {userStore.user.username}<button onClick={logout}>logout</button></p>
-          <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<LobbyIndex {...{ gameName, setGameName }} />} />
-                <Route path="/game" element={<Game />} />
-              </Routes>
-            </BrowserRouter>
-          </div>
+          <BrowserRouter>
+            <AnimatedSwitch />
+          </BrowserRouter>
         </GameContext.Provider>
-      )}
+      )
+      }
     </UserContext.Provider >
   )
 }

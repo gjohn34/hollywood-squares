@@ -44,3 +44,54 @@ button:hover {
     background-color: 'gray';
 
 }
+
+main {
+    background-color: gray;
+    position: relative;
+    height: 100%;
+}
+
+
+@keyframes leaveToLeft {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(-25%);
+        opacity: 0;
+        /* filter: brightness(0.5); */
+    }
+}
+
+@keyframes enterFromLeft {
+    from {
+        transform: translateX(-25%);
+        filter: brightness(0.5);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes leaveToRight {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes enterFromRight {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}

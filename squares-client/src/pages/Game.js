@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react"
 import "./game.css"
+import { useNavigate } from "react-router-dom"
 import UserContext from '../userContext'
 import GameContext from '../gameContext'
 import GameBoard from "../components/GameBoard"
@@ -23,9 +24,10 @@ export default function Game() {
     const { userStore, userDispatch } = useContext(UserContext)
     const { user } = userStore
     const { gameStore, gameDispatch } = useContext(GameContext)
-    const { gameId, gameState, turn, question, playingAs, game } = gameStore
+    const { gameState, turn, question, playingAs, game } = gameStore
     const [promptMessage, setPromptMessage] = useState("")
     const [winner, setWinner] = useState(null)
+    const nav = useNavigate()
 
     // TODO
     // Have board retrieved from game after fetch with right colours
@@ -50,11 +52,13 @@ export default function Game() {
 
     useEffect(() => {
         if (!user) return
-        let gameid = localStorage.getItem("gid")
-        if (!gameId && gameid) {
-            gameDispatch({ type: "setGameId", value: gameid })
-        }
-        if (gameid) {
+        let gameId = localStorage.getItem("gid")
+        if (!gameId) nav("/")
+
+        // if (!gameId && gameid) {
+        //     gameDispatch({ type: "setGameId", value: gameid })
+        // }
+        if (gameId) {
             fetch("http://localhost:8080/game", {
                 method: "GET",
                 credentials: 'include'
@@ -81,6 +85,15 @@ export default function Game() {
                     }
                 })
         }
+        return (() => {
+            // capturing again for logout
+            // gameId = localStorage.getItem("gid")
+
+            // if (!!gameId) {
+            //     console.log('game needs to be destroted')
+            // }
+            // nav("/")
+        })
     }, [user])
 
     useEffect(() => {
@@ -90,9 +103,9 @@ export default function Game() {
     }, [gameState])
 
     const gameSocket = (initGame, playingAs) => {
-        let gameid = localStorage.getItem("gid")
+        let gameId = localStorage.getItem("gid")
         let uid = localStorage.getItem("uid")
-        const ws = new WebSocket(`ws://localhost:8080/game?id=${gameid}&uid=${uid}`);
+        const ws = new WebSocket(`ws://localhost:8080/game?id=${gameId}&uid=${uid}`);
         ws.onopen = () => {
             userDispatch({ type: "setClient", value: ws })
         }

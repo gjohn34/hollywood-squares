@@ -6,15 +6,12 @@ lobbyServer.on('connection', (socket, request) => {
     // socket.ip = request.socket.remoteAddress
     socket.on('message', message => {
         let json = JSON.parse(message)
-        console.log(json)
-        console.log('-=============================')
         switch (json.type) {
             case "join":
                 let d = JSON.stringify({
                     type: "join",
                     value: { gid: json.value, uid: socket.uid }
                 })
-                console.log(d)
                 lobbyServer.clients.forEach(function each(client) {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(d);

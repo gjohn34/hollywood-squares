@@ -25,7 +25,8 @@ export function AuthWrapper() {
         alignItems: "center",
         height: "100%",
         width: "100%",
-        overflow: "hidden"
+        overflow: "hidden",
+        zIndex: 2,
     }
 
     const TransitionStyles = {
@@ -39,9 +40,7 @@ export function AuthWrapper() {
         <Transition in={!!userStore.user} timeout={1000}>
             {state => (
                 <div style={{ ...defaultStyle, transition: "height 1000ms ease-in", position: "absolute", backgroundColor: "red", ...TransitionStyles[state] }}>
-                    {/* <div style={{ zIndex: "1" }}> */}
                     <Auth />
-                    {/* </div> */}
                 </div>
             )}
 
