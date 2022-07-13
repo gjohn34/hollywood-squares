@@ -183,10 +183,12 @@ gameServer.on('connection', async (socket, request) => {
                 Question.findById((game.question), (e, doc) => {
                     if (doc.correct == data.value) {
                         const { row, column } = request.session
-                        const player = request.session.uid == game.playerOne.toString()
+                        const player = Number(request.session.uid == game.playerOne.toString())
                         const boardInstance = new Board([...game.board])
                         boardInstance.correctAnswer(row, column, player)
                         const winner = boardInstance.hasWinner(player)
+
+                        console.log(boardInstance.toArray())
 
                         Game.findOneAndUpdate(game.id, { board: boardInstance.toArray(), turn: game.turn + 1 }, { returnDocument: true }, (e, doc) => {
                             if (Boolean(winner)) {
@@ -196,6 +198,7 @@ gameServer.on('connection', async (socket, request) => {
                             } else {
                                 pair.sendToPair(new SocketResponse("getAnswer", {
                                     value: true,
+                                    board: boardInstance.toArray(),
                                     from: data.from,
                                     row: request.session.row, column: request.session.column
                                 }))

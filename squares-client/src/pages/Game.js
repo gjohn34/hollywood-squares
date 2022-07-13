@@ -24,14 +24,13 @@ export default function Game() {
     const { userStore, userDispatch } = useContext(UserContext)
     const { user } = userStore
     const { gameStore, gameDispatch } = useContext(GameContext)
-    const { gameState, turn, question, playingAs, game } = gameStore
+    // TODO
+    // Have board retrieved from game after fetch with right colours
+    const { gameState, turn, boardArray, playingAs, game } = gameStore
     const [promptMessage, setPromptMessage] = useState("")
     const [winner, setWinner] = useState(null)
     const nav = useNavigate()
 
-    // TODO
-    // Have board retrieved from game after fetch with right colours
-    const [boardArray, setBoardArray] = useState([[null, null, null], [null, null, null], [null, null, null]])
 
     const getMessage = (turn, username) => {
         if (turn == playingAs) {
@@ -73,8 +72,9 @@ export default function Game() {
                 })
                 .then(data => {
                     if (data) {
+                        console.log(data)
                         gameDispatch({ type: "setGame", value: data })
-                        setBoardArray(data.board)
+                        gameDispatch({ type: "setBoard", value: data.board })
                         gameDispatch({ type: "setGameState", value: data.playerOne && data.playerTwo ? GameState.Start : GameState.Waiting })
                         let x = data.playerOne._id == user._id ? Player.PlayerOne : Player.PlayerTwo
                         gameDispatch({ type: "setQuestion", value: data.question })
@@ -123,21 +123,11 @@ export default function Game() {
                     gameDispatch({ type: "setQuestion", value: json.value })
                     break
                 case "getAnswer":
-                    const { row, column, value, from } = json.value
-                    if (value == true) {
-                        let copy = [...boardArray]
-                        let cell;
-                        if (from == Player.PlayerOne) {
-                            cell = 0
-                        } else {
-                            cell = 1
-                        }
-                        copy[row][column] = cell
-                        setBoardArray(copy)
-                    }
+                    const { from, board } = json.value
+                    console.log(board)
                     gameDispatch({ type: "setTurn", value: from == Player.PlayerOne ? Player.PlayerTwo : Player.PlayerOne })
                     gameDispatch({ type: "setQuestion", value: null })
-
+                    gameDispatch({ type: "setBoard", value: board })
                     break;
                 case "gameOver":
                     // gameState not context?
@@ -149,7 +139,7 @@ export default function Game() {
             }
         }
         ws.onclose = () => {
-            userDispatch({ type: "setClient", value: null })
+            // userDispkatch({ type: "setClient", value: null })
         }
     }
 
@@ -158,7 +148,7 @@ export default function Game() {
             {winner ? <p>winner winner {winner}</p> : (
                 <div style={{ display: "flex" }}>
                     <GameLabel />
-                    {gameState == GameState.Start && <GameBoard {...{ boardArray, promptMessage }} />}
+                    {gameState == GameState.Start && <GameBoard {...{ promptMessage }} />}
                 </div >
             )}
         </>

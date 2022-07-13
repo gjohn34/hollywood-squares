@@ -5,9 +5,9 @@ import GameContext from '../gameContext'
 
 
 
-function GameBoard({ boardArray, promptMessage }) {
+function GameBoard({ promptMessage }) {
     const { gameStore } = useContext(GameContext)
-    const { playingAs, turn } = gameStore
+    const { playingAs, turn, boardArray } = gameStore
 
     return (
         <div style={{ width: "50%" }}>

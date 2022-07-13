@@ -51,7 +51,6 @@ function AnimatedSwitch() {
       >
         {state => (
           <Routes>
-            {console.log(`location: ${location.pathname} is ${state}`)}
             <Route path="/" element={<PageWrapper styles={{ ...defaultStyle, ...transitionStyles[state] }}><LobbyIndex /></PageWrapper>} />
             <Route path="/game" element={<PageWrapper styles={{ ...defaultStyle, ...transitionStyles[state] }}><Game /></PageWrapper>} />
           </Routes>
