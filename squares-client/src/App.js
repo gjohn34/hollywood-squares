@@ -19,30 +19,25 @@ function AnimatedSwitch() {
   const location = useLocation()
 
   const defaultStyle = {
-    transition: "transform 300ms",
-    // , opacity 300ms",
+    transition: "transform 600ms, opacity 600ms",
   }
 
   const transitionStyles = {
     entering: {
       transform: 'translateX(0)',
-      // opacity: 0,
-      zIndex: 1,
+      opacity: 1,
     },
     entered: {
       transform: 'translateX(0)',
-      // opacity: 1,
-      zIndex: 1,
+      opacity: 1,
     },
     exiting: {
       transform: 'translateX(-100%)',
-      // opacity: 1,
-      zIndex: 4,
+      opacity: 0,
     },
     exited: {
       transform: 'translateX(-100%)',
-      // opacity: 0,
-      zIndex: 4,
+      opacity: 0,
     }
   };
 
@@ -51,6 +46,8 @@ function AnimatedSwitch() {
       <Transition
         key={location.pathname}
         timeout={300}
+        unmountOnExit={true}
+        mountOnEnter={true}
       >
         {state => (
           <Routes>
