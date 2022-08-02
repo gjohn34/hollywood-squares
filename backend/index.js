@@ -76,7 +76,7 @@ app.get("/game", async (req, res) => {
 
 app.use("/auth", require("./routes/auth"))
 
-const server = app.listen(8080, () => console.log("server listening"))
+const server = app.listen(process.env.PORT, () => console.log("server listening"))
 
 server.on('upgrade', (request, socket, head) => {
     sessionParser(request, {}, () => {
