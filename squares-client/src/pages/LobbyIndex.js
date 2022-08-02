@@ -47,7 +47,7 @@ export default function LobbyIndex() {
 	}, [lobbyUpdate])
 
 	const newGame = e => {
-		fetch("http://localhost:8080/lobbies", {
+		fetch(`${process.env.REACT_APP_API_BASE}/ lobbies`, {
 			method: "POST",
 			headers: { 'Content-Type': 'application/json' },
 			credentials: 'include',
@@ -63,7 +63,7 @@ export default function LobbyIndex() {
 	}
 	const joinGame = async (id) => {
 		client.send(JSON.stringify({ type: "join", value: id }))
-		fetch("http://localhost:8080/games/" + id, {
+		fetch(`${process.env.REACT_APP_API_BASE}/games/` + id, {
 			method: "PATCH",
 			headers: { 'Content-Type': "application/json" },
 			credentials: 'include',
@@ -80,7 +80,7 @@ export default function LobbyIndex() {
 	}
 
 	const fetchGames = () => {
-		fetch("http://localhost:8080/lobbies")
+		fetch(`${process.env.REACT_APP_API_BASE}/lobbies`)
 			.then(response => response.json())
 			.then(data => setGames(data))
 	}
@@ -98,7 +98,7 @@ export default function LobbyIndex() {
 	}
 
 	const connect = () => {
-		const ws = new WebSocket(`ws://localhost:8080/lobby?uid=${user._id}`);
+		const ws = new WebSocket(`${process.env.REACT_APP_WS_BASE} / lobby ? uid = ${user._id}`);
 		console.log("connecting")
 
 		ws.onopen = (x) => {

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Game, User, Question } = require('../models')
 
 async function connectToDb() {
-  await mongoose.connect('mongodb+srv://admin:qihQVpoE2GzzIThQ@cluster0.e43sxtl.mongodb.net/?retryWrites=true&w=majority');
+  await mongoose.connect(process.env.MONGO);
 }
 
 connectToDb().then(async (x) => {

@@ -62,7 +62,7 @@ function Auth() {
     const handleSubmit = e => {
         e.preventDefault()
         setReadyState(ReadyStates.Fetching)
-        fetch("http://localhost:8080/auth/signup", {
+        fetch(`${process.env.REACT_APP_API_BASE}/auth/signup`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -90,7 +90,7 @@ function Auth() {
         e.preventDefault()
         setReadyState(ReadyStates.Fetching)
 
-        fetch("http://localhost:8080/auth/login", {
+        fetch(`${process.env.REACT_APP_API_BASE}/auth/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

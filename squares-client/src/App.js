@@ -75,7 +75,7 @@ function App() {
   useEffect(() => {
     let uid = localStorage.getItem("uid")
     if (uid) {
-      fetch("http://localhost:8080/auth/me", {
+      fetch(`${process.env.REACT_APP_API_BASE}/auth/me`, {
         method: "GET",
         credentials: "include"
       })
@@ -102,7 +102,7 @@ function App() {
 
   const logout = e => {
     e.preventDefault()
-    fetch("http://localhost:8080/auth/logout", {
+    fetch(`${process.env.REACT_APP_API_BASE}/auth/logout`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

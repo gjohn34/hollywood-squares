@@ -1,3 +1,4 @@
+require('dotenv').config()
 const WebSocket = require("ws")
 const { parse } = require('url');
 const { Game, User } = require('./models')
@@ -41,13 +42,12 @@ Game.watch()
 
 const session = require('express-session');
 const app = require("./server");
-const { log } = require("console");
 const sessionParser = session({
     saveUninitialized: false,
     secret: 'secret',
     resave: false,
     store: MongoStore.create({
-        mongoUrl: 'mongodb+srv://admin:qihQVpoE2GzzIThQ@cluster0.e43sxtl.mongodb.net/?authSource=admin&w=1'
+        mongoUrl: process.env.MONGO_SESSIONS
     })
 });
 

@@ -17,7 +17,7 @@ function GameLabel() {
     const handleCancel = () => {
         client.close()
         localStorage.removeItem("gid")
-        fetch(`http://localhost:8080/games/${game._id}`, {
+        fetch(`${process.env.REACT_APP_API_BASE}/games/${game._id}`, {
             method: "DELETE",
             credentials: "include",
             headers: {

@@ -58,7 +58,7 @@ export default function Game() {
         //     gameDispatch({ type: "setGameId", value: gameid })
         // }
         if (gameId) {
-            fetch("http://localhost:8080/game", {
+            fetch(`${process.env.REACT_APP_API_BASE}/game`, {
                 method: "GET",
                 credentials: 'include'
             })
@@ -105,7 +105,7 @@ export default function Game() {
     const gameSocket = (initGame, playingAs) => {
         let gameId = localStorage.getItem("gid")
         let uid = localStorage.getItem("uid")
-        const ws = new WebSocket(`ws://localhost:8080/game?id=${gameId}&uid=${uid}`);
+        const ws = new WebSocket(`${process.env.REACT_APP_WS_BASE}/game?id=${gameId}&uid=${uid}`);
         ws.onopen = () => {
             userDispatch({ type: "setClient", value: ws })
         }
