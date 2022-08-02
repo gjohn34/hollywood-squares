@@ -11,13 +11,11 @@ require("./utils/db")
 
 Game.watch()
     .on('change', data => {
-        console.log(data.operationType)
         switch (data.operationType) {
             case "update":
-                console.log(data.operationType)
                 Game.findById(data.documentKey._id, (e, doc) => {
                     if (e) return
-                    let pair = Pair.findPairByGame(doc)
+                    // let pair = Pair.findPairByGame(doc)
                 })
 
                 break;
@@ -29,7 +27,6 @@ Game.watch()
                 });
                 break
             case "delete":
-                console.log(data.documentKey._id.toString())
                 lobbyServer.clients.forEach(function each(client) {
                     if (client.readyState === WebSocket.OPEN && (client.uid != data.playerOne || client.uid != data.playerTwo)) {
                         client.send(JSON.stringify({ type: "delete", value: data.documentKey._id.toString() }))

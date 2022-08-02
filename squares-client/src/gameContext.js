@@ -29,6 +29,8 @@ export function gameReducer(state, action) {
             return { ...state, question: action.value }
         case "setBoard":
             return { ...state, boardArray: action.value }
+        case "setWinner":
+            return { ...state, boardArray: action.value }
         default:
             return state;
     }

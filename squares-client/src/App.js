@@ -102,6 +102,7 @@ function App() {
 
   const logout = e => {
     e.preventDefault()
+    localStorage.removeItem('uid')
     fetch(`${process.env.REACT_APP_API_BASE}/auth/logout`, {
       method: "DELETE",
       headers: {

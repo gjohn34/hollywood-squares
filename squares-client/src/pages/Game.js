@@ -22,13 +22,12 @@ export default function Game() {
     // Lazy enum
 
     const { userStore, userDispatch } = useContext(UserContext)
-    const { user } = userStore
+    const { user, client } = userStore
     const { gameStore, gameDispatch } = useContext(GameContext)
     // TODO
     // Have board retrieved from game after fetch with right colours
-    const { gameState, turn, boardArray, playingAs, game } = gameStore
+    const { gameState, turn, boardArray, playingAs, game, winner } = gameStore
     const [promptMessage, setPromptMessage] = useState("")
-    const [winner, setWinner] = useState(null)
     const nav = useNavigate()
 
 
@@ -71,8 +70,8 @@ export default function Game() {
                     }
                 })
                 .then(data => {
+                    // TODO - If game is over, redirect home
                     if (data) {
-                        console.log(data)
                         gameDispatch({ type: "setGame", value: data })
                         gameDispatch({ type: "setBoard", value: data.board })
                         gameDispatch({ type: "setGameState", value: data.playerOne && data.playerTwo ? GameState.Start : GameState.Waiting })
@@ -86,6 +85,8 @@ export default function Game() {
                 })
         }
         return (() => {
+            console.log("foo")
+            client.close()
             // capturing again for logout
             // gameId = localStorage.getItem("gid")
 
@@ -124,7 +125,7 @@ export default function Game() {
                     break
                 case "getAnswer":
                     const { from, board } = json.value
-                    console.log(board)
+                    // TODO Clean these dispatches up
                     gameDispatch({ type: "setTurn", value: from == Player.PlayerOne ? Player.PlayerTwo : Player.PlayerOne })
                     gameDispatch({ type: "setQuestion", value: null })
                     gameDispatch({ type: "setBoard", value: board })
@@ -132,7 +133,7 @@ export default function Game() {
                 case "gameOver":
                     // gameState not context?
                     gameDispatch({ type: "setGameState", value: GameState.Finished })
-                    setWinner(json.value.value)
+                    gameDispatch({ type: "setWinner", value: json.value })
                     break;
                 default:
                     break;

@@ -47,7 +47,9 @@ export default function LobbyIndex() {
 	}, [lobbyUpdate])
 
 	const newGame = e => {
-		fetch(`${process.env.REACT_APP_API_BASE}/ lobbies`, {
+		if (client) client.close()
+
+		fetch(`${process.env.REACT_APP_API_BASE}/lobbies`, {
 			method: "POST",
 			headers: { 'Content-Type': 'application/json' },
 			credentials: 'include',
@@ -55,13 +57,14 @@ export default function LobbyIndex() {
 		})
 			.then(response => response.json())
 			.then(data => {
-				if (client) client.close()
 				gameDispatch({ type: "setGameId", value: data._id })
 				localStorage.setItem("gid", data._id)
 				navigate('/game')
 			})
 	}
 	const joinGame = async (id) => {
+		if (client) client.close()
+
 		client.send(JSON.stringify({ type: "join", value: id }))
 		fetch(`${process.env.REACT_APP_API_BASE}/games/` + id, {
 			method: "PATCH",
@@ -71,7 +74,6 @@ export default function LobbyIndex() {
 		})
 			.then(response => response.json())
 			.then(data => {
-				if (client) client.close()
 				gameDispatch({ type: "setGameId", value: data._id })
 				localStorage.setItem("gid", data._id)
 				navigate('/game')
@@ -89,17 +91,12 @@ export default function LobbyIndex() {
 		throw new Error()
 	}
 
-	const ping = () => {
-		client.send("ping")
-	}
-
 	const close = () => {
 		client.close()
 	}
 
 	const connect = () => {
-		const ws = new WebSocket(`${process.env.REACT_APP_WS_BASE} / lobby ? uid = ${user._id}`);
-		console.log("connecting")
+		const ws = new WebSocket(`${process.env.REACT_APP_WS_BASE}/lobby?uid=${user._id}`);
 
 		ws.onopen = (x) => {
 			userDispatch({ type: "setClient", value: ws })
@@ -135,8 +132,6 @@ export default function LobbyIndex() {
 				</div>
 				<div>
 					<button onClick={newGame}>new game</button>
-					<button onClick={close}>Close</button>
-					<button onClick={ping}>ping</button>
 				</div>
 			</div>
 			<section style={{

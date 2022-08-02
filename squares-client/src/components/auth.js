@@ -39,7 +39,7 @@ export function AuthWrapper() {
     return (
         <Transition in={!!userStore.user} timeout={1000}>
             {state => (
-                <div style={{ ...defaultStyle, transition: "height 1000ms ease-in", position: "absolute", backgroundColor: "red", ...TransitionStyles[state] }}>
+                <div style={{ ...defaultStyle, transition: "height 1000ms ease-in", position: "absolute", backgroundColor: "indianred", ...TransitionStyles[state] }}>
                     <Auth />
                 </div>
             )}
@@ -59,10 +59,11 @@ function Auth() {
         setReadyState(!!user ? ReadyStates.Done : ReadyStates.WaitingForInput)
     }, [user])
 
-    const handleSubmit = e => {
+    const handleSubmit = (e, login = false) => {
         e.preventDefault()
+        if (username == "" || password == "") return
         setReadyState(ReadyStates.Fetching)
-        fetch(`${process.env.REACT_APP_API_BASE}/auth/signup`, {
+        fetch(`${process.env.REACT_APP_API_BASE}/auth/${login ? "login" : "signup"}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -85,36 +86,6 @@ function Auth() {
             })
     }
 
-
-    const handleLogin = e => {
-        e.preventDefault()
-        setReadyState(ReadyStates.Fetching)
-
-        fetch(`${process.env.REACT_APP_API_BASE}/auth/login`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify({ username, password })
-        })
-            .then(response => {
-                if (response.status == 200) {
-                    return response.json()
-                } else {
-                    setReadyState(ReadyStates.WaitingForInput)
-                }
-            })
-            .then(json => {
-                if (!json) return
-
-                localStorage.setItem("uid", json._id)
-                userDispatch({ type: "setUser", value: json })
-            })
-    }
-
-
     switch (readyState) {
         case ReadyStates.WaitingForInput:
             return (
@@ -134,11 +105,11 @@ function Auth() {
                             </div>
                             <input style={{ width: "70%" }} value={password} onChange={e => setPassword(e.target.value)} />
                         </div>
-                        <button style={{ alignSelf: 'center' }}>Up</button>
+                        <button style={{ alignSelf: 'center' }}>New Player</button>
                     </form>
                     <form style={{
                         width: "33%", minWidth: 'fit-content', display: 'flex', flexDirection: 'column', border: 'solid 1px black', justifyContent: 'space-evenly', margin: '1em', padding: '1em 0'
-                    }} onSubmit={handleLogin}>
+                    }} onSubmit={e => handleSubmit(e, true)}>
                         <div style={{ display: 'flex', justifyContent: "space-between", margin: '1em 0' }} >
                             <div style={{ width: "30%", textAlign: 'right', marginRight: "10%" }}>
                                 <label>Username: </label>
@@ -151,7 +122,7 @@ function Auth() {
                             </div>
                             <input style={{ width: "70%" }} value={password} onChange={e => setPassword(e.target.value)} />
                         </div>
-                        <button style={{ alignSelf: 'center' }}>In</button>
+                        <button style={{ alignSelf: 'center' }}>Returning Player</button>
                     </form>
                 </>
             )
