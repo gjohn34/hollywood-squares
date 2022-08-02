@@ -51,12 +51,13 @@ const sessionParser = session({
     })
 });
 
-app.use(session({
-    saveUninitialized: false,
-    secret: 'secret',
-    resave: false
-})
-)
+app.use(sessionParser)
+// ({
+//     saveUninitialized: false,
+//     secret: 'secret',
+//     resave: false
+// })
+// )
 
 // app.use((req, res, next) => {
 //     console.log(req.session)
