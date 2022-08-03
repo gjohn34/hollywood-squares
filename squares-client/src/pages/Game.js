@@ -18,18 +18,17 @@ export const Player = {
     PlayerTwo: "PlayerTwo"
 }
 
-export default function Game() {
+export default function Game({ state }) {
     // Lazy enum
 
     const { userStore, userDispatch } = useContext(UserContext)
-    const { user, client } = userStore
+    const { user } = userStore
     const { gameStore, gameDispatch } = useContext(GameContext)
     // TODO
     // Have board retrieved from game after fetch with right colours
-    const { gameState, turn, boardArray, playingAs, game, winner } = gameStore
+    const { gameState, turn, playingAs, game, winner, gameClient } = gameStore
     const [promptMessage, setPromptMessage] = useState("")
     const nav = useNavigate()
-
 
     const getMessage = (turn, username) => {
         if (turn == playingAs) {
@@ -56,7 +55,7 @@ export default function Game() {
         // if (!gameId && gameid) {
         //     gameDispatch({ type: "setGameId", value: gameid })
         // }
-        if (gameId) {
+        if (state == 'entered') {
             fetch(`${process.env.REACT_APP_API_BASE}/game`, {
                 method: "GET",
                 credentials: 'include'
@@ -84,18 +83,16 @@ export default function Game() {
                     }
                 })
         }
-        return (() => {
-            console.log("foo")
-            client.close()
-            // capturing again for logout
-            // gameId = localStorage.getItem("gid")
 
-            // if (!!gameId) {
-            //     console.log('game needs to be destroted')
-            // }
-            // nav("/")
-        })
-    }, [user])
+    }, [])
+
+    useEffect(() => {
+        return () => {
+            if (gameClient) {
+                gameClient.close()
+            }
+        }
+    }, [])
 
     useEffect(() => {
         if (gameState === GameState.Start) {
@@ -103,12 +100,12 @@ export default function Game() {
         }
     }, [gameState])
 
-    const gameSocket = (initGame, playingAs) => {
+    const gameSocket = (initGame) => {
         let gameId = localStorage.getItem("gid")
         let uid = localStorage.getItem("uid")
         const ws = new WebSocket(`${process.env.REACT_APP_WS_BASE}/game?id=${gameId}&uid=${uid}`);
         ws.onopen = () => {
-            userDispatch({ type: "setClient", value: ws })
+            gameDispatch({ type: "setGameClient", value: ws })
         }
 
         ws.onmessage = ({ data }) => {
@@ -140,7 +137,7 @@ export default function Game() {
             }
         }
         ws.onclose = () => {
-            // userDispkatch({ type: "setClient", value: null })
+            gameDispatch({ type: "setGameClient", value: null })
         }
     }
 

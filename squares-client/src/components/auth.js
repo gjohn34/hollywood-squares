@@ -107,7 +107,7 @@ function Auth() {
                         </div>
                         <button style={{ alignSelf: 'center' }}>New Player</button>
                     </form>
-                    <form style={{
+                    {/* <form style={{
                         width: "33%", minWidth: 'fit-content', display: 'flex', flexDirection: 'column', border: 'solid 1px black', justifyContent: 'space-evenly', margin: '1em', padding: '1em 0'
                     }} onSubmit={e => handleSubmit(e, true)}>
                         <div style={{ display: 'flex', justifyContent: "space-between", margin: '1em 0' }} >
@@ -123,7 +123,7 @@ function Auth() {
                             <input style={{ width: "70%" }} value={password} onChange={e => setPassword(e.target.value)} />
                         </div>
                         <button style={{ alignSelf: 'center' }}>Returning Player</button>
-                    </form>
+                    </form> */}
                 </>
             )
         case ReadyStates.Fetching:

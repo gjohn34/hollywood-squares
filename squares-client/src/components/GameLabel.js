@@ -6,16 +6,15 @@ import { useNavigate } from 'react-router-dom'
 function GameLabel() {
     const { userStore } = useContext(UserContext)
     const nav = useNavigate()
-    const { client } = userStore
     const { gameStore } = useContext(gameContext)
-    const { game, playingAs, turn, question } = gameStore
+    const { game, playingAs, turn, question, gameClient } = gameStore
 
     const answer = bool => {
-        client.send(JSON.stringify({ type: "answerQuestion", value: bool, from: playingAs }))
+        gameClient.send(JSON.stringify({ type: "answerQuestion", value: bool, from: playingAs }))
     }
 
     const handleCancel = () => {
-        client.close()
+        gameClient.close()
         localStorage.removeItem("gid")
         fetch(`${process.env.REACT_APP_API_BASE}/games/${game._id}`, {
             method: "DELETE",

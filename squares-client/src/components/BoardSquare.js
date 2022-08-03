@@ -4,9 +4,8 @@ import UserContext from '../userContext.js'
 
 
 function BoardSquare({ playingAs, turn, display, row, column }) {
-    const { userStore } = useContext(UserContext)
     const { gameStore } = useContext(GameContext)
-    const { client } = userStore
+    const { gameClient } = gameStore
     const { question } = gameStore
     const divEl = useRef(null)
 
@@ -30,7 +29,7 @@ function BoardSquare({ playingAs, turn, display, row, column }) {
     const squareClick = () => {
         if (!!question) return
         if (playingAs !== turn) return;
-        client.send(JSON.stringify({ type: "getQuestion", value: { row, column } }))
+        gameClient.send(JSON.stringify({ type: "getQuestion", value: { row, column } }))
     }
 
     return (

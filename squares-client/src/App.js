@@ -50,10 +50,12 @@ function AnimatedSwitch() {
         mountOnEnter={true}
       >
         {state => (
-          <Routes>
-            <Route path="/" element={<PageWrapper styles={{ ...defaultStyle, ...transitionStyles[state] }}><LobbyIndex /></PageWrapper>} />
-            <Route path="/game" element={<PageWrapper styles={{ ...defaultStyle, ...transitionStyles[state] }}><Game /></PageWrapper>} />
-          </Routes>
+          <PageWrapper styles={{ ...defaultStyle, ...transitionStyles[state] }}>
+            <Routes>
+              <Route path="/" element={<LobbyIndex state={state} />} />
+              <Route path="/game" element={<Game state={state} />} />
+            </Routes>
+          </PageWrapper>
         )}
       </Transition>
     </TransitionGroup>

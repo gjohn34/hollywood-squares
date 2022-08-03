@@ -110,7 +110,8 @@ class Cell {
 
 class Pair {
     static pairs = []
-    constructor(playerOne, playerOneUid) {
+    constructor(playerOne, playerOneUid, gid) {
+        this.gid = gid
         this.playerOne = playerOne
         this.playerTwo = null
         this.playerOneUid = playerOneUid
@@ -155,6 +156,9 @@ class Pair {
 
         if (this.playerOneUid == null && this.playerTwoUid == null) {
             Pair.Remove(this.index)
+            console.log('both have left')
+            Game.findByIdAndDelete(this.gid)
+
             return true
         }
         return false
@@ -175,7 +179,7 @@ gameServer.on('connection', async (socket, request) => {
     // TODO - SOMEHOW STARTING A SECOND GAME AFFECTS THE OLD ONE????
     let pair;
     if (!map.has(game.id)) {
-        pair = new Pair(socket, request.session.uid)
+        pair = new Pair(socket, request.session.uid, game._id)
     } else {
         pair = map.get(game.id);
         switch (request.session.uid) {
@@ -256,9 +260,8 @@ gameServer.on('connection', async (socket, request) => {
     socket.on("close", () => {
         console.log("Closing connection to game")
         if (pair.removeFromPair(request.session.uid)) {
-            console.log(map.entries())
             map.delete(request.session.gid)
-            console.log(map.entries())
+            Game.findByIdAndDelete(request.session.gid, {}, (e, doc) => { console.log(doc) })
         }
     })
 });

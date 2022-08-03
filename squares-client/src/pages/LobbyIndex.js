@@ -7,17 +7,22 @@ export default function LobbyIndex() {
 	const [gameName, setGameName] = useState("")
 
 	const { userStore, userDispatch } = useContext(UserContext)
-	const { gameDispatch } = useContext(GameContext)
-	const { client, user } = userStore
+	const { gameStore, gameDispatch } = useContext(GameContext)
+	const { gameClient } = gameStore
+
+	const { lobbyClient, user } = userStore
 	const [games, setGames] = useState([])
 	// const [gameState, setGameState] = useState(null)
 	const [lobbyUpdate, setLobbyUpdate] = useState(null)
 	let navigate = useNavigate();
 
 	useEffect(() => {
-		if (!client) {
+		if (!lobbyClient) {
 			// somehow this is causing some screen tearing?
 			connect();
+		}
+		if (gameClient) {
+			gameClient.close()
 		}
 		fetchGames();
 	}, [])
@@ -47,7 +52,7 @@ export default function LobbyIndex() {
 	}, [lobbyUpdate])
 
 	const newGame = e => {
-		if (client) client.close()
+		if (lobbyClient) lobbyClient.close()
 
 		fetch(`${process.env.REACT_APP_API_BASE}/lobbies`, {
 			method: "POST",
@@ -63,9 +68,14 @@ export default function LobbyIndex() {
 			})
 	}
 	const joinGame = async (id) => {
-		if (client) client.close()
+		// the point for this??
+		lobbyClient.send(JSON.stringify({ type: "join", value: id }))
 
-		client.send(JSON.stringify({ type: "join", value: id }))
+		if (lobbyClient) lobbyClient.close()
+		if (gameClient) { gameClient.close() }
+
+
+
 		fetch(`${process.env.REACT_APP_API_BASE}/games/` + id, {
 			method: "PATCH",
 			headers: { 'Content-Type': "application/json" },
@@ -91,15 +101,11 @@ export default function LobbyIndex() {
 		throw new Error()
 	}
 
-	const close = () => {
-		client.close()
-	}
-
 	const connect = () => {
 		const ws = new WebSocket(`${process.env.REACT_APP_WS_BASE}/lobby?uid=${user._id}`);
 
 		ws.onopen = (x) => {
-			userDispatch({ type: "setClient", value: ws })
+			userDispatch({ type: "setLobbyClient", value: ws })
 		}
 		ws.onmessage = ({ data }) => {
 			const json = JSON.parse(data)
