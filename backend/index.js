@@ -38,28 +38,26 @@ Game.watch()
     })
 
 const session = require('express-session');
-const app = require("./server");
 const sessionParser = session({
-    saveUninitialized: false,
+    saveUninitialized: true,
     secret: 'secret',
     resave: false,
+    // proxy: true,
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_SESSIONS
-    })
+    }),
+    cookie: {
+        secure: true,
+        sameSite: 'none'
+    }
 });
 
-app.use(sessionParser)
-// ({
-//     saveUninitialized: false,
-//     secret: 'secret',
-//     resave: false
-// })
-// )
 
-// app.use((req, res, next) => {
-//     console.log(req.session)
-//     next()
-// })
+app.set('trust proxy', 1) // trust first proxy
+
+
+app.use(sessionParser)
+
 app.use("/games", require("./routes/game"))
 app.use("/lobbies", require("./routes/lobby"))
 
