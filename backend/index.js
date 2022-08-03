@@ -49,13 +49,16 @@ const sessionParser = session({
         mongoUrl: process.env.MONGO_SESSIONS
     }),
     cookie: {
-        secure: true,
-        sameSite: 'none'
     }
 });
 
+if (process.env.ENVIRONMENT == 'production') {
+    sessionParser.cookie.secure = true
+    sessionParser.cookie.sameSite = 'none'
+    app.set('trust proxy', 1) // trust first proxy
+}
 
-app.set('trust proxy', 1) // trust first proxy
+
 
 
 app.use(sessionParser)

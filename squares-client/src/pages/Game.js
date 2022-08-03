@@ -71,6 +71,7 @@ export default function Game({ state }) {
                 .then(data => {
                     // TODO - If game is over, redirect home
                     if (data) {
+                        // TODO - Clean this trash up
                         gameDispatch({ type: "setGame", value: data })
                         gameDispatch({ type: "setBoard", value: data.board })
                         gameDispatch({ type: "setGameState", value: data.playerOne && data.playerTwo ? GameState.Start : GameState.Waiting })
@@ -128,7 +129,6 @@ export default function Game({ state }) {
                     gameDispatch({ type: "setBoard", value: board })
                     break;
                 case "gameOver":
-                    // gameState not context?
                     gameDispatch({ type: "setGameState", value: GameState.Finished })
                     gameDispatch({ type: "setWinner", value: json.value })
                     break;
@@ -143,12 +143,38 @@ export default function Game({ state }) {
 
     return (
         <>
-            {winner ? <p>winner winner {winner}</p> : (
+            {winner ? <GameOver /> : (
                 <div style={{ display: "flex" }}>
                     <GameLabel />
                     {gameState == GameState.Start && <GameBoard {...{ promptMessage }} />}
                 </div >
             )}
+        </>
+    )
+}
+
+function GameOver() {
+    const nav = useNavigate()
+
+    const { gameStore } = useContext(GameContext)
+    const { winner, playingAs, gameClient } = gameStore
+
+    const handleCancel = () => {
+        gameClient.close()
+        localStorage.removeItem("gid")
+        nav("/")
+    }
+    return winner == playingAs ? (
+        <>
+            <div id="overlay" className="win"></div>
+            <p>Winner winner {winner}</p>
+            <button onClick={handleCancel}>Back to lobby</button>
+        </>
+    ) : (
+        <>
+            <div id="overlay" className="lost"></div>
+            <p>better luck next time</p>
+            <button onClick={handleCancel}>Back to lobby</button>
         </>
     )
 }

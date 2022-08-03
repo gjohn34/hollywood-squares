@@ -12,7 +12,8 @@ export const initialGameData = {
     gameState: GameState.Loading,
     gameClient: null,
     question: null,
-    boardArray: [[null, null, null], [null, null, null], [null, null, null]]
+    boardArray: [[null, null, null], [null, null, null], [null, null, null]],
+    winner: null
 }
 
 
@@ -31,7 +32,7 @@ export function gameReducer(state, action) {
         case "setBoard":
             return { ...state, boardArray: action.value }
         case "setWinner":
-            return { ...state, boardArray: action.value }
+            return { ...state, winner: action.value }
         case "setGameClient":
             return { ...state, gameClient: action.value }
         default:

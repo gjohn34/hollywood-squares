@@ -96,3 +96,27 @@ main {
         transform: translateX(0);
     }
 }
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    background-size: contain;
+    background-position: center;
+}
+
+#overlay+p+button {
+    position: relative;
+    z-index: 1;
+}
+
+.win {
+    background: url('./confetti-25.gif');
+}
+
+.lost {
+    background: url('./emoji-smiley.gif');
+    background-repeat: no-repeat;
+}

@@ -156,7 +156,6 @@ class Pair {
 
         if (this.playerOneUid == null && this.playerTwoUid == null) {
             Pair.Remove(this.index)
-            console.log('both have left')
             Game.findByIdAndDelete(this.gid)
 
             return true
@@ -201,9 +200,7 @@ gameServer.on('connection', async (socket, request) => {
     socket.on('message', async message => {
         data = JSON.parse(message)
         pair = map.get(game.id);
-        console.log(request.session.gid)
         game = await Game.findById(request.session.gid)
-        console.log(game.id)
 
         switch (data.type) {
             case "getQuestion":
@@ -222,13 +219,10 @@ gameServer.on('connection', async (socket, request) => {
                         const { row, column } = request.session
                         const player = Number(request.session.uid == game.playerOne.toString())
                         boardInstance.correctAnswer(row, column, player)
-                        console.log(boardInstance.toArray())
                         const winner = boardInstance.hasWinner(player)
 
 
                         Game.findOneAndUpdate(request.session.gid, { board: boardInstance.toArray(), turn: game.turn + 1 }, { returnDocument: true }, (e, doc) => {
-                            console.log(e)
-                            console.log(doc)
                             if (Boolean(winner)) {
                                 pair.sendToPair(new SocketResponse("gameOver", player == 1 ? "PlayerOne" : "PlayerTwo"))
                             } else {
@@ -261,7 +255,7 @@ gameServer.on('connection', async (socket, request) => {
         console.log("Closing connection to game")
         if (pair.removeFromPair(request.session.uid)) {
             map.delete(request.session.gid)
-            Game.findByIdAndDelete(request.session.gid, {}, (e, doc) => { console.log(doc) })
+            Game.findByIdAndDelete(request.session.gid)
         }
     })
 });
