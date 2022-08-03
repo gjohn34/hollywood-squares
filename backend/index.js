@@ -38,6 +38,8 @@ Game.watch()
     })
 
 const session = require('express-session');
+const app = require("./server");
+
 const sessionParser = session({
     saveUninitialized: true,
     secret: 'secret',
