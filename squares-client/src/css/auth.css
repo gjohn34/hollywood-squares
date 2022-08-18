@@ -1,0 +1,43 @@
+form {
+    width: 33%;
+    min-width: fit-content;
+    display: flex;
+    flex-direction: column;
+    border: solid 1px black;
+    justify-content: space-evenly;
+    margin: 1em;
+    padding: 1em;
+}
+
+form>div {
+    display: flex;
+    justify-content: space-between;
+    margin: 1em 0;
+}
+
+form>div>div {
+    width: 30%;
+    text-align: right;
+    margin-right: 10%;
+}
+
+form>div>input {
+    width: 70%;
+}
+
+form>button {
+    align-self: center;
+}
+
+#auth-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    z-index: 2;
+    position: absolute;
+    background-color: indianred;
+}

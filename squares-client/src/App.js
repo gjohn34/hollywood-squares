@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect } from 'react'
+import { useReducer, useEffect } from 'react'
 import UserContext, { initialUserData, userReducer } from './userContext'
 import GameContext, { initialGameData, gameReducer } from './gameContext'
 
@@ -11,7 +11,7 @@ import {
 import Game from "./pages/Game.js"
 import LobbyIndex from "./pages/LobbyIndex.js"
 import { AuthWrapper } from './components/auth'
-import { SwitchTransition, Transition, TransitionGroup } from 'react-transition-group';
+import { Transition, TransitionGroup } from 'react-transition-group';
 
 
 
@@ -71,8 +71,6 @@ function App() {
   const [userStore, userDispatch] = useReducer(userReducer, initialUserData);
   const [gameStore, gameDispatch] = useReducer(gameReducer, initialGameData);
 
-  const [gameName, setGameName] = useState("")
-
   // auth user
   useEffect(() => {
     let uid = localStorage.getItem("uid")
@@ -128,7 +126,9 @@ function App() {
       {userStore.user && (
 
         <GameContext.Provider value={{ gameStore, gameDispatch }}>
-          <p style={{ textAlign: 'right' }}>playing as {userStore.user.username}<button onClick={logout}>logout</button></p>
+          <nav>
+            <p><b>Playing as:</b> {userStore.user.username}</p><button onClick={logout}>Logout</button>
+          </nav>
           <BrowserRouter>
             <AnimatedSwitch />
           </BrowserRouter>

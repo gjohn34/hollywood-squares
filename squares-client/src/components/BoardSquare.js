@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react'
 import GameContext from '../gameContext.js'
-import UserContext from '../userContext.js'
 
 
 function BoardSquare({ playingAs, turn, display, row, column }) {

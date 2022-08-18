@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import UserContext from '../userContext'
+import '../css/auth.css'
 import { Transition } from 'react-transition-group';
 
 
@@ -9,25 +10,10 @@ const ReadyStates = {
     Done: "Done"
 }
 
-function AuthForm() {
-
-}
 
 export function AuthWrapper() {
-    const { userStore, userDispatch } = useContext(UserContext)
-    const { user } = userStore
+    const { userStore } = useContext(UserContext)
 
-
-    const defaultStyle = {
-        display: "flex",
-        flexDirection: 'column',
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100%",
-        width: "100%",
-        overflow: "hidden",
-        zIndex: 2,
-    }
 
     const TransitionStyles = {
         entering: { height: "100%" },
@@ -39,7 +25,7 @@ export function AuthWrapper() {
     return (
         <Transition in={!!userStore.user} timeout={1000}>
             {state => (
-                <div style={{ ...defaultStyle, transition: "height 1000ms ease-in", position: "absolute", backgroundColor: "indianred", ...TransitionStyles[state] }}>
+                <div id="auth-wrapper" style={{ transition: "height 1000ms ease-in", ...TransitionStyles[state] }}>
                     <Auth />
                 </div>
             )}
@@ -89,42 +75,21 @@ function Auth() {
     switch (readyState) {
         case ReadyStates.WaitingForInput:
             return (
-                <>
-                    <form style={{
-                        width: "33%", minWidth: 'fit-content', display: 'flex', flexDirection: 'column', border: 'solid 1px black', justifyContent: 'space-evenly', margin: '1em', padding: '1em'
-                    }} onSubmit={handleSubmit}>
-                        <div style={{ display: 'flex', justifyContent: "space-between", margin: '1em 0' }} >
-                            <div style={{ width: "30%", textAlign: 'right', marginRight: "10%" }}>
-                                <label>Username: </label>
-                            </div>
-                            <input style={{ width: "70%" }} value={username} onChange={e => setUsername(e.target.value)} /></div>
-
-                        <div style={{ display: 'flex', justifyContent: "space-between", margin: '1em 0' }} >
-                            <div style={{ width: "30%", textAlign: 'right', marginRight: "10%" }}>
-                                <label>Password: </label>
-                            </div>
-                            <input style={{ width: "70%" }} value={password} onChange={e => setPassword(e.target.value)} />
+                <form onSubmit={handleSubmit}>
+                    <div>
+                        <div>
+                            <label>Username: </label>
                         </div>
-                        <button style={{ alignSelf: 'center' }}>New Player</button>
-                    </form>
-                    {/* <form style={{
-                        width: "33%", minWidth: 'fit-content', display: 'flex', flexDirection: 'column', border: 'solid 1px black', justifyContent: 'space-evenly', margin: '1em', padding: '1em 0'
-                    }} onSubmit={e => handleSubmit(e, true)}>
-                        <div style={{ display: 'flex', justifyContent: "space-between", margin: '1em 0' }} >
-                            <div style={{ width: "30%", textAlign: 'right', marginRight: "10%" }}>
-                                <label>Username: </label>
-                            </div>
-                            <input style={{ width: "70%" }} value={username} onChange={e => setUsername(e.target.value)} /></div>
+                        <input value={username} onChange={e => setUsername(e.target.value)} /></div>
 
-                        <div style={{ display: 'flex', justifyContent: "space-between", margin: '1em 0' }} >
-                            <div style={{ width: "30%", textAlign: 'right', marginRight: "10%" }}>
-                                <label>Password: </label>
-                            </div>
-                            <input style={{ width: "70%" }} value={password} onChange={e => setPassword(e.target.value)} />
+                    <div>
+                        <div>
+                            <label>Password: </label>
                         </div>
-                        <button style={{ alignSelf: 'center' }}>Returning Player</button>
-                    </form> */}
-                </>
+                        <input value={password} onChange={e => setPassword(e.target.value)} />
+                    </div>
+                    <button>New Player</button>
+                </form>
             )
         case ReadyStates.Fetching:
             return <p>loading pls wait</p>

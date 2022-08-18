@@ -10,7 +10,7 @@ function GameBoard({ promptMessage }) {
     const { playingAs, turn, boardArray } = gameStore
 
     return (
-        <div style={{ width: "50%" }}>
+        <div>
             <p>Current Turn: {turn}</p>
             <p>{promptMessage}</p>
 

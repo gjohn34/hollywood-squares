@@ -1,20 +1,3 @@
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
-/* addComponents({
-    'button': {
-      borderRadius: '.25rem',
-      fontWeight: '600',
-      color: 'black',
-      backgroundColor: 'white',
-      border: 'solid 1px black',
-      transition: 'background-color 300ms linear',
-      '&:hover': {
-        backgroundColor: 'gray',
-      }
-    } */
-
 * {
     margin: 0;
     padding: 0;
@@ -50,6 +33,30 @@ main {
     background-color: gray;
     position: relative;
     height: 100%;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    background-size: contain;
+    background-position: center;
+}
+
+#overlay+p+button {
+    position: relative;
+    z-index: 1;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+}
+
+nav p {
+    padding-right: 1rem;
 }
 
 
@@ -95,32 +102,4 @@ main {
     to {
         transform: translateX(0);
     }
-}
-
-#overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 100%;
-    background-size: contain;
-    background-position: center;
-}
-
-#overlay+p+button {
-    position: relative;
-    z-index: 1;
-}
-
-.win {
-    background: url('./confetti-25.gif');
-}
-
-.lost {
-    background: url('./emoji-smiley.gif');
-    background-repeat: no-repeat;
-}
-
-#labels p {
-    padding: 10px
 }

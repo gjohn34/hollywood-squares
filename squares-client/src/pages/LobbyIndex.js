@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react'
 import { useNavigate } from "react-router-dom";
 import GameContext from '../gameContext';
 import UserContext from '../userContext'
+import '../css/lobby.css'
 
 export default function LobbyIndex() {
 	const [gameName, setGameName] = useState("")
@@ -131,33 +132,14 @@ export default function LobbyIndex() {
 
 	return (
 		<>
-			<div style={{ textAlign: "right" }}>
-				<div>
-					<label>new Game</label>
-					<input value={gameName} onChange={e => setGameName(e.target.value)} />
-				</div>
-				<div>
-					<button onClick={newGame}>new game</button>
-				</div>
+			<div>
+				<label>Lobby name:</label>
+				<input value={gameName} onChange={e => setGameName(e.target.value)} />
+				<button onClick={newGame}>new game</button>
 			</div>
-			<section style={{
-				display: "flex",
-				flexWrap: "wrap"
-			}}>
+			<section >
 				{games.map((game) =>
-					<article key={game._id} style={{
-						border: "solid 1px black",
-						width: "30%",
-						margin: "10px",
-						padding: "1em",
-						borderRadius: "1em",
-						minHeight: "200px",
-						minWidth: "fit-content",
-						display: "flex",
-						flexDirection: "column",
-						justifyContent: "space-evenly",
-
-					}}>
+					<article key={game._id} >
 						<h3>{game.playerOne.username}'s game</h3>
 						<h4>{game.name}</h4>
 						{!!game.playerTwo ? (

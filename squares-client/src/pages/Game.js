@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import "./game.css"
+import "../css/game.css"
 import { useNavigate } from "react-router-dom"
 import UserContext from '../userContext'
 import GameContext from '../gameContext'
@@ -19,13 +19,9 @@ export const Player = {
 }
 
 export default function Game({ state }) {
-    // Lazy enum
-
-    const { userStore, userDispatch } = useContext(UserContext)
+    const { userStore } = useContext(UserContext)
     const { user } = userStore
     const { gameStore, gameDispatch } = useContext(GameContext)
-    // TODO
-    // Have board retrieved from game after fetch with right colours
     const { gameState, turn, playingAs, game, winner, gameClient } = gameStore
     const [promptMessage, setPromptMessage] = useState("")
     const nav = useNavigate()
@@ -52,9 +48,7 @@ export default function Game({ state }) {
         let gameId = localStorage.getItem("gid")
         if (!gameId) nav("/")
 
-        // if (!gameId && gameid) {
-        //     gameDispatch({ type: "setGameId", value: gameid })
-        // }
+
         if (state == 'entered') {
             fetch(`${process.env.REACT_APP_API_BASE}/game`, {
                 method: "GET",
@@ -69,7 +63,6 @@ export default function Game({ state }) {
                     }
                 })
                 .then(data => {
-                    // TODO - If game is over, redirect home
                     if (data) {
                         // TODO - Clean this trash up
                         gameDispatch({ type: "setGame", value: data })
@@ -78,7 +71,6 @@ export default function Game({ state }) {
                         let x = data.playerOne._id == user._id ? Player.PlayerOne : Player.PlayerTwo
                         gameDispatch({ type: "setQuestion", value: data.question })
                         gameDispatch({ type: "setPlayingAs", value: x })
-                        console.log(data.turn)
                         gameDispatch({ type: "setTurn", value: data.turn % 2 == 0 ? Player.PlayerOne : Player.PlayerTwo })
                         gameSocket(data, x)
                         localStorage.setItem("gid", data._id)
@@ -145,7 +137,7 @@ export default function Game({ state }) {
     return (
         <>
             {winner ? <GameOver /> : (
-                <div style={{ display: "flex" }}>
+                <div id='gp'>
                     <GameLabel />
                     {gameState == GameState.Start && <GameBoard {...{ promptMessage }} />}
                 </div >

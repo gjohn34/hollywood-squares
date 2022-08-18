@@ -1,10 +1,8 @@
 import React, { useContext } from 'react'
 import gameContext from '../gameContext.js'
-import UserContext from '../userContext.js'
 import { useNavigate } from 'react-router-dom'
 
 function GameLabel() {
-    const { userStore } = useContext(UserContext)
     const nav = useNavigate()
     const { gameStore } = useContext(gameContext)
     const { game, playingAs, turn, question, gameClient } = gameStore
@@ -31,42 +29,30 @@ function GameLabel() {
     }
 
     return (
-        <div id="labels" style={{
-            width: "50%",
-            // display: "flex",
-            // flexDirection: "column",
-            // justifyContent: "space-around"
-        }}>
-            <p>You are {playingAs}</p>
+        <div id="labels">
             {game && (
-                <>
-                    <p>Player One: {game.playerOne?.username}</p>
-                    {game.playerTwo ? <p>Player Two: {game.playerTwo.username}</p> : (
+                <div>
+                    <p><b>Player One:</b> {game.playerOne?.username}</p>
+                    {game.playerTwo ? <p><b>Player Two:</b> {game.playerTwo.username}</p> : (
                         <>
                             <p>waiting for player two...<button onClick={handleCancel}>cancel</button></p>
                         </>
                     )}
-                </>
+                </div>
             )}
-            <>
-                {question && (
-                    <>
-                        {console.log(turn)}
-                        {console.log(playingAs)}
-                        <p>{question.text}</p>
-                        <p>Square says: {question.answer}</p>
-                        {turn === playingAs && (
-                            <>
-                                <p>True or false?</p>
-                                <div>
-                                    <button onClick={() => answer(true)}>True</button>
-                                    <button onClick={() => answer(false)}>False</button>
-                                </div>
-                            </>
-                        )}
-                    </>
-                )}
-            </>
+            {question && (
+                <div className="display">
+                    <p>{question.text}</p>
+                    <p>Square says: {question.answer}</p>
+                    {turn === playingAs && (
+                        <div>
+                            <button onClick={() => answer(true)}>True</button>
+                            <span>OR</span>
+                            <button onClick={() => answer(false)}>False</button>
+                        </div   >
+                    )}
+                </div>
+            )}
         </div>
     )
 }

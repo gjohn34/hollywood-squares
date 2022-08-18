@@ -1,0 +1,59 @@
+#container {
+    height: 200px;
+    width: 200px;
+    /* border: solid 1px black; */
+}
+
+.row {
+    width: 100%;
+    height: 33%;
+    /* border: solid 1px black; */
+    display: flex;
+}
+
+.square {
+    width: 33%;
+    height: 100%;
+    border: solid 1px black;
+}
+
+#gp {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.win {
+    background: url('./confetti-25.gif');
+}
+
+.lost {
+    background: url('./emoji-smiley.gif');
+    background-repeat: no-repeat;
+}
+
+#labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#labels>.display {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+}
+
+.display>div {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#labels p {
+    padding: 10px
+}
+
+main>div>div {
+    padding-top: 2em;
+}
