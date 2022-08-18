@@ -55,6 +55,8 @@ const sessionParser = session({
     }
 });
 
+console.log("RUNNING IN " + process.env.ENVIRONMENT)
+
 if (process.env.ENVIRONMENT == 'production') {
     sessionParser.cookie.secure = true
     sessionParser.cookie.sameSite = 'none'

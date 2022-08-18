@@ -112,7 +112,7 @@ function Auth() {
                         {state => (
                             <div style={{ ...defaultStyle, ...TransitionStyles[state] }}>
                                 <p>{error}</p>
-                                <button onClick={() => setShow(null)}>Got it</button>
+                                <button onClick={() => { setShow(null); setTimeout(() => setError(null), 200) }}>Got it</button>
                             </div>
                         )}
                     </Transition>
