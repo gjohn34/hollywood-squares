@@ -156,8 +156,8 @@ class Pair {
         }
 
         if (this.playerOneUid == null && this.playerTwoUid == null) {
-            Pair.Remove(this.index)
-            Game.findByIdAndDelete(this.gid)
+            // Pair.Remove(this.index)
+            // Game.findByIdAndDelete(this.gid)
 
             return true
         }
@@ -216,6 +216,7 @@ gameServer.on('connection', async (socket, request) => {
                     row = game.position[0]
                     column = game.position[1]
                 }
+
                 Question.findById((game.question), (e, doc) => {
                     if (doc.correct == data.value) {
                         const boardInstance = new Board([...game.board])
@@ -223,12 +224,10 @@ gameServer.on('connection', async (socket, request) => {
                         boardInstance.correctAnswer(row, column, player)
                         const winner = boardInstance.hasWinner(player)
 
-
-                        Game.findOneAndUpdate(request.session.gid, { board: boardInstance.toArray(), turn: game.turn + 1 }, { returnDocument: true }, (e, doc) => {
+                        Game.findOneAndUpdate(request.session.gid, { board: boardInstance.toArray(), turn: game.turn + 1, question: null, position: [undefined, undefined] }, { returnDocument: true }, (e, doc) => {
                             if (Boolean(winner)) {
                                 pair.sendToPair(new SocketResponse("gameOver", player == 1 ? "PlayerOne" : "PlayerTwo"))
                             } else {
-                                console.log(pair)
                                 pair.sendToPair(new SocketResponse("getAnswer", {
                                     value: true,
                                     board: boardInstance.toArray(),
@@ -238,12 +237,14 @@ gameServer.on('connection', async (socket, request) => {
                             }
                         })
                     } else {
-                        pair.sendToPair(new SocketResponse("getAnswer", {
-                            value: false,
-                            board: game.board,
-                            from: data.from,
-                            row: request.session.row, column: request.session.column,
-                        }))
+                        Game.findOneAndUpdate(request.session.gid, { turn: game.turn + 1, question: null, position: [undefined, undefined] }, { returnDocument: true }, (e, doc) => {
+                            pair.sendToPair(new SocketResponse("getAnswer", {
+                                value: false,
+                                board: game.board,
+                                from: data.from,
+                                row: request.session.row, column: request.session.column,
+                            }))
+                        })
                     }
                 })
                 break;

@@ -11,6 +11,8 @@ require("./utils/db")
 
 Game.watch()
     .on('change', data => {
+        console.log("bar")
+
         switch (data.operationType) {
             case "update":
                 Game.findById(data.documentKey._id, (e, doc) => {
