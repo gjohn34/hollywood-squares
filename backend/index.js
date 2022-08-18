@@ -43,7 +43,7 @@ Game.watch()
 const session = require('express-session');
 const app = require("./server");
 
-const sessionParser = session({
+const options = {
     saveUninitialized: true,
     secret: 'secret',
     resave: false,
@@ -51,22 +51,23 @@ const sessionParser = session({
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_SESSIONS
     }),
-    cookie: {
-    }
-});
-
-console.log("RUNNING IN " + process.env.ENVIRONMENT)
+    cookie: {}
+}
 
 if (process.env.ENVIRONMENT == 'production') {
-    sessionParser.cookie.secure = true
-    sessionParser.cookie.sameSite = 'none'
+    options.cookie.secure = true
+    options.cookie.sameSite = 'none'
     app.set('trust proxy', 1) // trust first proxy
 }
 
-
+const sessionParser = session(options);
 
 
 app.use(sessionParser)
+app.use((req, res, next) => {
+    console.log(req.session)
+    next()
+})
 
 app.use("/games", require("./routes/game"))
 app.use("/lobbies", require("./routes/lobby"))
