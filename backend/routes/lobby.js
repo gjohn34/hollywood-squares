@@ -3,7 +3,7 @@ const { Game } = require('../models')
 const router = require("express").Router();
 
 router.get("/", async (req, res) => {
-    const lobbies = await Game.find()
+    const lobbies = await Game.find().populate(["playerOne", "playerTwo"])
     res.send(lobbies)
 })
 

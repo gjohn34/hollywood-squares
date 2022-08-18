@@ -78,6 +78,7 @@ export default function Game({ state }) {
                         let x = data.playerOne._id == user._id ? Player.PlayerOne : Player.PlayerTwo
                         gameDispatch({ type: "setQuestion", value: data.question })
                         gameDispatch({ type: "setPlayingAs", value: x })
+                        console.log(data.turn)
                         gameDispatch({ type: "setTurn", value: data.turn % 2 == 0 ? Player.PlayerOne : Player.PlayerTwo })
                         gameSocket(data, x)
                         localStorage.setItem("gid", data._id)
@@ -95,11 +96,11 @@ export default function Game({ state }) {
         }
     }, [])
 
-    useEffect(() => {
-        if (gameState === GameState.Start) {
-            gameDispatch({ type: "setTurn", value: Player.PlayerOne })
-        }
-    }, [gameState])
+    // useEffect(() => {
+    //     if (gameState === GameState.Start) {
+    //         gameDispatch({ type: "setTurn", value: Player.PlayerOne })
+    //     }
+    // }, [gameState])
 
     const gameSocket = (initGame) => {
         let gameId = localStorage.getItem("gid")

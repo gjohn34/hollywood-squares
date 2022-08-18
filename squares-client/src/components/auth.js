@@ -91,7 +91,7 @@ function Auth() {
             return (
                 <>
                     <form style={{
-                        width: "33%", minWidth: 'fit-content', display: 'flex', flexDirection: 'column', border: 'solid 1px black', justifyContent: 'space-evenly', margin: '1em', padding: '1em 0'
+                        width: "33%", minWidth: 'fit-content', display: 'flex', flexDirection: 'column', border: 'solid 1px black', justifyContent: 'space-evenly', margin: '1em', padding: '1em'
                     }} onSubmit={handleSubmit}>
                         <div style={{ display: 'flex', justifyContent: "space-between", margin: '1em 0' }} >
                             <div style={{ width: "30%", textAlign: 'right', marginRight: "10%" }}>

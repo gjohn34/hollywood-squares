@@ -11,9 +11,9 @@ connectToDb().then(async (x) => {
   User.deleteMany({}, (e, d) => { console.log(d) })
   if (Question.countDocuments() == 0) {
     Question.create([
-      { text: "1 + 1", answer: "3", correct: false },
+      { text: "1 + 1 = ", answer: "3", correct: false },
       { text: "Sky is blue", answer: "yes", correct: true },
-      { text: "fire hot", answer: "no", correct: false },
+      { text: "Fire is hot", answer: "no", correct: false },
     ])
   }
 

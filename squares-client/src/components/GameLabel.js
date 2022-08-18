@@ -31,7 +31,12 @@ function GameLabel() {
     }
 
     return (
-        <div style={{ width: "50%" }}>
+        <div id="labels" style={{
+            width: "50%",
+            // display: "flex",
+            // flexDirection: "column",
+            // justifyContent: "space-around"
+        }}>
             <p>You are {playingAs}</p>
             {game && (
                 <>
@@ -46,13 +51,17 @@ function GameLabel() {
             <>
                 {question && (
                     <>
+                        {console.log(turn)}
+                        {console.log(playingAs)}
                         <p>{question.text}</p>
                         <p>Square says: {question.answer}</p>
                         {turn === playingAs && (
                             <>
                                 <p>True or false?</p>
-                                <button onClick={() => answer(true)}>True</button>
-                                <button onClick={() => answer(false)}>False</button>
+                                <div>
+                                    <button onClick={() => answer(true)}>True</button>
+                                    <button onClick={() => answer(false)}>False</button>
+                                </div>
                             </>
                         )}
                     </>

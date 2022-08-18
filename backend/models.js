@@ -36,6 +36,10 @@ const gameSchema = new Schema({
         default: [
             [null, null, null], [null, null, null], [null, null, null]
         ]
+    },
+    position: {
+        type: [Number],
+        required: false
     }
 });
 

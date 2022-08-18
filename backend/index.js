@@ -20,11 +20,14 @@ Game.watch()
 
                 break;
             case "insert":
-                lobbyServer.clients.forEach(function each(client) {
-                    if (client.readyState === WebSocket.OPEN && client.uid != data.playerOne) {
-                        client.send(JSON.stringify({ type: "new", value: data.fullDocument }));
-                    }
-                });
+                User.findById(data.fullDocument.playerOne, (e, doc) => {
+                    data.fullDocument.playerOne = doc
+                    lobbyServer.clients.forEach(function each(client) {
+                        if (client.readyState === WebSocket.OPEN && client.uid != data.playerOne) {
+                            client.send(JSON.stringify({ type: "new", value: data.fullDocument }));
+                        }
+                    });
+                })
                 break
             case "delete":
                 lobbyServer.clients.forEach(function each(client) {

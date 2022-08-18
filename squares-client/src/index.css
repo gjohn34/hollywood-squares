@@ -120,3 +120,7 @@ main {
     background: url('./emoji-smiley.gif');
     background-repeat: no-repeat;
 }
+
+#labels p {
+    padding: 10px
+}

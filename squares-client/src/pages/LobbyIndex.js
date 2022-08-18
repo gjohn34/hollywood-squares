@@ -149,13 +149,20 @@ export default function LobbyIndex() {
 						border: "solid 1px black",
 						width: "30%",
 						margin: "10px",
-						padding: "10px"
+						padding: "1em",
+						borderRadius: "1em",
+						minHeight: "200px",
+						minWidth: "fit-content",
+						display: "flex",
+						flexDirection: "column",
+						justifyContent: "space-evenly",
 
 					}}>
-						<p>{game.name}</p>
+						<h3>{game.playerOne.username}'s game</h3>
+						<h4>{game.name}</h4>
 						{!!game.playerTwo ? (
 							<>
-								<p>{game.playerOne} vs {game.playerTwo}</p>
+								<p>{game.playerOne.username} vs {game.playerTwo.username}</p>
 								<button onClick={() => watchGame(game._id)}>Watch</button>
 							</>
 						) : (

@@ -27,6 +27,7 @@ class Board {
     }
 
     correctAnswer = (row, column, value) => {
+
         this.board[row][column].correct(value)
     }
 
@@ -181,18 +182,13 @@ gameServer.on('connection', async (socket, request) => {
         pair = new Pair(socket, request.session.uid, game._id)
     } else {
         pair = map.get(game.id);
-        switch (request.session.uid) {
-            case pair.playerOneUid:
-                pair.playerOne = socket;
-                break;
-            case pair.playerTwoUid:
-                pair.playerTwo = socket
-                break
-            default:
-                pair.playerTwo = socket
-                pair.playerTwoUid = request.session.uid
-                pair.playerOne.emit("message", JSON.stringify(new SocketResponse("playerTwoName", game.playerTwo)))
-                break;
+        if (pair.playerOne == null && pair.playerTwo != null) {
+            pair.playerOneUid = request.session.uid;
+            pair.playerOne = socket;
+        } else if (pair.playerTwo == null && pair.playerOne != null) {
+            pair.playerTwo = socket;
+            pair.playerTwoUid = request.session.uid
+            pair.playerOne.emit("message", JSON.stringify(new SocketResponse("playerTwoName", game.playerTwo)))
         }
     }
     map.set(game.id, pair)
@@ -208,15 +204,21 @@ gameServer.on('connection', async (socket, request) => {
                     const { row, column } = data.value
                     request.session.row = row
                     request.session.column = column
-                    game = await Game.findByIdAndUpdate(game.id, { question: doc.id }, { returnDocument: 'after' })
+                    game = await Game.findByIdAndUpdate(game.id, { question: doc.id, position: [row, column] }, { returnDocument: 'after' })
                     pair.sendToPair(new SocketResponse("getQuestion", doc.toObject()))
                 })
                 break;
             case "answerQuestion":
+                let { row, column } = request.session
+                if ((row == undefined || column == undefined)) {
+                    // for some reason destructuring the array doesn't play nice
+                    // [row, column] = game.position
+                    row = game.position[0]
+                    column = game.position[1]
+                }
                 Question.findById((game.question), (e, doc) => {
                     if (doc.correct == data.value) {
                         const boardInstance = new Board([...game.board])
-                        const { row, column } = request.session
                         const player = Number(request.session.uid == game.playerOne.toString())
                         boardInstance.correctAnswer(row, column, player)
                         const winner = boardInstance.hasWinner(player)
@@ -226,6 +228,7 @@ gameServer.on('connection', async (socket, request) => {
                             if (Boolean(winner)) {
                                 pair.sendToPair(new SocketResponse("gameOver", player == 1 ? "PlayerOne" : "PlayerTwo"))
                             } else {
+                                console.log(pair)
                                 pair.sendToPair(new SocketResponse("getAnswer", {
                                     value: true,
                                     board: boardInstance.toArray(),
