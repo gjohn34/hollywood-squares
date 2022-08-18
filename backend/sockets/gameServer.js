@@ -147,6 +147,7 @@ class Pair {
     }
 
     removeFromPair = (uid) => {
+
         if (uid == this.playerOneUid) {
             this.playerOne = null
             this.playerOneUid = null
@@ -257,9 +258,22 @@ gameServer.on('connection', async (socket, request) => {
     })
     socket.on("close", () => {
         console.log("Closing connection to game")
-        if (pair.removeFromPair(request.session.uid)) {
+
+        // WHY BREAK ON REFRESH
+        try {
+            if (pair.removeFromPair(request.session.uid)) {
+                map.delete(request.session.gid)
+                Game.findByIdAndDelete(request.session.gid, (e, doc) => {
+                    if (e) console.log(e)
+                })
+            }
+        } catch {
+            console.log(4)
             map.delete(request.session.gid)
-            Game.findByIdAndDelete(request.session.gid)
+            Game.findByIdAndDelete(request.session.gid, (e, doc) => {
+                if (e) console.log(e)
+            })
+
         }
     })
 });

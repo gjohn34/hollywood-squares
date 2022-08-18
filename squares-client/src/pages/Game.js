@@ -59,6 +59,7 @@ export default function Game({ state }) {
                         return response.json()
                     } else {
                         localStorage.removeItem("gid")
+                        nav("/")
                         return
                     }
                 })

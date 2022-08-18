@@ -64,10 +64,7 @@ const sessionParser = session(options);
 
 
 app.use(sessionParser)
-app.use((req, res, next) => {
-    console.log(req.session)
-    next()
-})
+
 
 app.use("/games", require("./routes/game"))
 app.use("/lobbies", require("./routes/lobby"))
