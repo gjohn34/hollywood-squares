@@ -29,7 +29,6 @@ export function AuthWrapper() {
                     <Auth />
                 </div>
             )}
-
         </Transition>
     )
 
@@ -40,6 +39,8 @@ function Auth() {
     const [password, setPassword] = useState("")
     const { user } = userStore
     const [readyState, setReadyState] = useState(user ? ReadyStates.Done : ReadyStates.WaitingForInput)
+    const [error, setError] = useState(null)
+    const [show, setShow] = useState(null)
 
     useEffect(() => {
         setReadyState(!!user ? ReadyStates.Done : ReadyStates.WaitingForInput)
@@ -47,7 +48,11 @@ function Auth() {
 
     const handleSubmit = (e, login = false) => {
         e.preventDefault()
-        if (username == "" || password == "") return
+        if (username == "" || password == "") {
+            setShow(true)
+            setError("Need username and password.")
+            return
+        }
         setReadyState(ReadyStates.Fetching)
         fetch(`${process.env.REACT_APP_API_BASE}/auth/${login ? "login" : "signup"}`, {
             method: "POST",
@@ -66,33 +71,81 @@ function Auth() {
                 }
             })
             .then(json => {
-                if (!json) return
+                if (!json) {
+                    setShow(true)
+                    setError("Try again with different credentials.")
+                    return
+                }
                 localStorage.setItem("uid", json._id)
                 userDispatch({ type: "setUser", value: json })
             })
     }
 
+    const defaultStyle = {
+        transition: 'opacity 200ms ease-in',
+        position: 'absolute',
+        backgroundColor: 'black',
+        color: 'white',
+        // borderRadius: '2em',
+        // minWidth: 'fit-content',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        opacity: 0,
+    }
+
+    const TransitionStyles = {
+        entering: { opacity: 0 },
+        entered: { opacity: 1 },
+        exiting: { opacity: 0 },
+        exited: { opacity: 0 },
+    };
+
     switch (readyState) {
         case ReadyStates.WaitingForInput:
             return (
-                <form onSubmit={handleSubmit}>
-                    <div>
+                <>
+                    <Transition in={!!show} mountOnEnter={true} unmountOnExit={true} timeout={200}>
+                        {state => (
+                            <div style={{ ...defaultStyle, ...TransitionStyles[state] }}>
+                                <p>{error}</p>
+                                <button onClick={() => setShow(null)}>Got it</button>
+                            </div>
+                        )}
+                    </Transition>
+                    <form onSubmit={handleSubmit}>
                         <div>
-                            <label>Username: </label>
-                        </div>
-                        <input value={username} onChange={e => setUsername(e.target.value)} /></div>
+                            <div>
+                                <label>Username: </label>
+                            </div>
+                            <input value={username} onChange={e => setUsername(e.target.value)} /></div>
 
-                    <div>
                         <div>
-                            <label>Password: </label>
+                            <div>
+                                <label>Password: </label>
+                            </div>
+                            <input value={password} onChange={e => setPassword(e.target.value)} />
                         </div>
-                        <input value={password} onChange={e => setPassword(e.target.value)} />
-                    </div>
-                    <button>New Player</button>
-                </form>
+                        <button>New Player</button>
+                    </form>
+                </>
+
             )
         case ReadyStates.Fetching:
-            return <p>loading pls wait</p>
+            return <>
+                <Transition in={!!error} mountOnEnter={true} unmountOnExit={true} timeout={200}>
+                    {state => (
+                        <div style={{ ...defaultStyle, ...TransitionStyles[state] }}>
+                            <p>{error}</p>
+                            <button onClick={() => setError(null)}>Got it</button>
+                        </div>
+                    )}
+                </Transition>
+                <p>loading pls wait</p>
+            </>
         default: return null
 
     }
